@@ -13,6 +13,13 @@
   <meta name="robots" content="noindex, nofollow" />
   <meta name="referrer" content="no-referrer" />
 
+  <!-- Elegant display typeface. If it cannot load, headings fall back to a
+       classic serif, so the page still looks dignified. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap" />
+
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
@@ -39,10 +46,10 @@
       <nav id="primary-nav" class="site-nav" aria-label="Primary">
         <ul class="site-nav__list">
           <li><a href="#tribute">Tribute</a></li>
+          <li><a href="#memories">Memories</a></li>
           <li><a href="#details">Details</a></li>
           <li><a href="#schedule">Schedule</a></li>
           <li><a href="#rsvp">RSVP</a></li>
-          <li><a href="#memories">Memories</a></li>
           <li><a href="#faq">FAQ</a></li>
         </ul>
       </nav>
@@ -75,6 +82,7 @@
           <p class="hero__eyebrow" data-config="deceased.eyebrow">Celebrating the Life of</p>
           <h1 id="hero-name" class="hero__name" data-config="deceased.fullName">Full Name of Your Loved One</h1>
           <p class="hero__lifespan" data-config="deceased.lifespan">Year of Birth to Year of Passing</p>
+          <p class="hero__flourish" aria-hidden="true"><span>&#9670;</span></p>
 
           <p class="hero__meta">
             <span data-config="event.date">August 22, 2026</span>
@@ -121,6 +129,84 @@
           <figure class="tribute__photo" data-tribute-photo-figure hidden>
             <img data-tribute-photo src="" alt="" />
           </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== MEMORY WALL ===================== -->
+    <section id="memories" class="section section--memories" aria-labelledby="memories-heading" hidden>
+      <div class="container container--narrow">
+        <h2 id="memories-heading" class="section__heading" data-config="memoryWall.heading">Share a Memory</h2>
+        <p class="section__intro" data-config="memoryWall.intro"></p>
+
+        <!-- Submission form -->
+        <div class="form-status" data-memory-status role="status" aria-live="polite"></div>
+
+        <form id="memory-form" class="memory-form" novalidate>
+          <div class="field">
+            <label for="memoryName">Your name <span class="req" aria-hidden="true">*</span></label>
+            <input type="text" id="memoryName" name="memoryName" autocomplete="name"
+                   aria-describedby="memoryName-error" required />
+            <p class="field__error" id="memoryName-error" data-error-for="memoryName" aria-live="polite"></p>
+          </div>
+
+          <div class="field">
+            <label for="memoryText">Your memory or message <span class="req" aria-hidden="true">*</span></label>
+            <textarea id="memoryText" name="memoryText" rows="4"
+                      aria-describedby="memoryText-help memoryText-count memoryText-error"></textarea>
+            <p class="field__help" id="memoryText-help">
+              Share a story, a memory, or a few kind words. Please be respectful.
+            </p>
+            <p class="field__count" id="memoryText-count" data-memory-count aria-live="polite"></p>
+            <p class="field__error" id="memoryText-error" data-error-for="memoryText" aria-live="polite"></p>
+          </div>
+
+          <button class="btn btn--primary" type="submit" data-memory-submit>
+            <span data-memory-submit-label>Post Memory</span>
+            <span class="spinner" data-memory-spinner hidden aria-hidden="true"></span>
+          </button>
+        </form>
+
+        <!-- Approved memories appear here -->
+        <h3 class="memory-wall__heading">Memories Shared</h3>
+        <div class="memory-wall" data-memory-list aria-live="polite">
+          <p class="memory-wall__empty" data-memory-empty>Loading memories...</p>
+        </div>
+
+        <!-- Photo upload (shown only when photos are enabled) -->
+        <div class="photo-upload" data-photo-upload hidden>
+          <h3 class="memory-wall__heading" data-config="photos.heading">Share a Photo</h3>
+          <p class="section__intro" data-config="photos.intro"></p>
+
+          <div class="form-status" data-photo-status role="status" aria-live="polite"></div>
+
+          <form id="photo-form" class="memory-form" novalidate>
+            <div class="field">
+              <label for="photoName">Your name <span class="req" aria-hidden="true">*</span></label>
+              <input type="text" id="photoName" name="photoName" autocomplete="name"
+                     aria-describedby="photoName-error" required />
+              <p class="field__error" id="photoName-error" data-error-for="photoName" aria-live="polite"></p>
+            </div>
+
+            <div class="field">
+              <label for="photoCaption">Caption <span class="field__optional">(optional)</span></label>
+              <input type="text" id="photoCaption" name="photoCaption"
+                     placeholder="For example, where or when the photo was taken" />
+            </div>
+
+            <div class="field">
+              <label for="photoFile">Choose a photo <span class="req" aria-hidden="true">*</span></label>
+              <input type="file" id="photoFile" name="photoFile" accept="image/*"
+                     aria-describedby="photoFile-help photoFile-error" />
+              <p class="field__help" id="photoFile-help">A JPG or PNG image. It will appear once the family approves it.</p>
+              <p class="field__error" id="photoFile-error" data-error-for="photoFile" aria-live="polite"></p>
+            </div>
+
+            <button class="btn btn--primary" type="submit" data-photo-submit>
+              <span data-photo-submit-label>Upload Photo</span>
+              <span class="spinner" data-photo-spinner hidden aria-hidden="true"></span>
+            </button>
+          </form>
         </div>
       </div>
     </section>
@@ -366,84 +452,6 @@
             </p>
           </div>
         </form>
-      </div>
-    </section>
-
-    <!-- ===================== MEMORY WALL ===================== -->
-    <section id="memories" class="section section--memories" aria-labelledby="memories-heading" hidden>
-      <div class="container container--narrow">
-        <h2 id="memories-heading" class="section__heading" data-config="memoryWall.heading">Share a Memory</h2>
-        <p class="section__intro" data-config="memoryWall.intro"></p>
-
-        <!-- Submission form -->
-        <div class="form-status" data-memory-status role="status" aria-live="polite"></div>
-
-        <form id="memory-form" class="memory-form" novalidate>
-          <div class="field">
-            <label for="memoryName">Your name <span class="req" aria-hidden="true">*</span></label>
-            <input type="text" id="memoryName" name="memoryName" autocomplete="name"
-                   aria-describedby="memoryName-error" required />
-            <p class="field__error" id="memoryName-error" data-error-for="memoryName" aria-live="polite"></p>
-          </div>
-
-          <div class="field">
-            <label for="memoryText">Your memory or message <span class="req" aria-hidden="true">*</span></label>
-            <textarea id="memoryText" name="memoryText" rows="4"
-                      aria-describedby="memoryText-help memoryText-count memoryText-error"></textarea>
-            <p class="field__help" id="memoryText-help">
-              Share a story, a memory, or a few kind words. Please be respectful.
-            </p>
-            <p class="field__count" id="memoryText-count" data-memory-count aria-live="polite"></p>
-            <p class="field__error" id="memoryText-error" data-error-for="memoryText" aria-live="polite"></p>
-          </div>
-
-          <button class="btn btn--primary" type="submit" data-memory-submit>
-            <span data-memory-submit-label>Post Memory</span>
-            <span class="spinner" data-memory-spinner hidden aria-hidden="true"></span>
-          </button>
-        </form>
-
-        <!-- Approved memories appear here -->
-        <h3 class="memory-wall__heading">Memories Shared</h3>
-        <div class="memory-wall" data-memory-list aria-live="polite">
-          <p class="memory-wall__empty" data-memory-empty>Loading memories...</p>
-        </div>
-
-        <!-- Photo upload (shown only when photos are enabled) -->
-        <div class="photo-upload" data-photo-upload hidden>
-          <h3 class="memory-wall__heading" data-config="photos.heading">Share a Photo</h3>
-          <p class="section__intro" data-config="photos.intro"></p>
-
-          <div class="form-status" data-photo-status role="status" aria-live="polite"></div>
-
-          <form id="photo-form" class="memory-form" novalidate>
-            <div class="field">
-              <label for="photoName">Your name <span class="req" aria-hidden="true">*</span></label>
-              <input type="text" id="photoName" name="photoName" autocomplete="name"
-                     aria-describedby="photoName-error" required />
-              <p class="field__error" id="photoName-error" data-error-for="photoName" aria-live="polite"></p>
-            </div>
-
-            <div class="field">
-              <label for="photoCaption">Caption <span class="field__optional">(optional)</span></label>
-              <input type="text" id="photoCaption" name="photoCaption"
-                     placeholder="For example, where or when the photo was taken" />
-            </div>
-
-            <div class="field">
-              <label for="photoFile">Choose a photo <span class="req" aria-hidden="true">*</span></label>
-              <input type="file" id="photoFile" name="photoFile" accept="image/*"
-                     aria-describedby="photoFile-help photoFile-error" />
-              <p class="field__help" id="photoFile-help">A JPG or PNG image. It will appear once the family approves it.</p>
-              <p class="field__error" id="photoFile-error" data-error-for="photoFile" aria-live="polite"></p>
-            </div>
-
-            <button class="btn btn--primary" type="submit" data-photo-submit>
-              <span data-photo-submit-label>Upload Photo</span>
-              <span class="spinner" data-photo-spinner hidden aria-hidden="true"></span>
-            </button>
-          </form>
-        </div>
       </div>
     </section>
 

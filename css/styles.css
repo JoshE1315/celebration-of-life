@@ -11,25 +11,27 @@
  * DESIGN TOKENS  -  edit these to restyle the site
  * -------------------------------------------------------------------------*/
 :root {
-  /* Colors: soft, neutral, peaceful */
-  --color-bg:            #faf7f2; /* warm ivory page background */
-  --color-surface:       #ffffff; /* cards and panels */
-  --color-surface-alt:   #f3eee6; /* alternating section background */
-  --color-text:          #3a3631; /* primary text, soft near-black */
-  --color-text-muted:    #6b655c; /* secondary text */
-  --color-heading:       #4a4036; /* headings, warm brown */
-  --color-accent:        #8a7a64; /* muted taupe accent */
-  --color-accent-dark:   #6f6150; /* accent on hover */
-  --color-accent-soft:   #e7ddcd; /* tints, quote bars */
-  --color-border:        #e3dccf; /* subtle borders */
+  /* Colors: coastal navy and sand, with warm brass accents */
+  --color-bg:            #f4efe4; /* soft sand page background */
+  --color-surface:       #fffdf8; /* warm white cards and panels */
+  --color-surface-alt:   #ece4d4; /* alternating section background, deeper sand */
+  --color-text:          #34302a; /* primary text, warm charcoal */
+  --color-text-muted:    #6a6357; /* secondary text */
+  --color-heading:       #2c4760; /* headings and footer, deep navy */
+  --color-accent:        #2f4a63; /* deep navy accent (primary buttons) */
+  --color-accent-dark:   #21384c; /* navy on hover */
+  --color-accent-soft:   #d7e1ea; /* soft navy tint, focus glow */
+  --color-brass:         #b3935b; /* warm brass, flourishes and hairlines */
+  --color-brass-dark:    #98794494; /* brass deep (unused fallback) */
+  --color-border:        #e4dac6; /* subtle sand borders */
   --color-error:         #9a4b3f; /* muted, non-alarming red */
   --color-error-bg:      #f7e9e6;
-  --color-success:       #4a6150; /* muted green */
-  --color-success-bg:    #e8f0ea;
-  --color-focus:         #5b7c9a; /* focus ring, calm blue */
+  --color-success:       #3f5e54; /* muted teal-green */
+  --color-success-bg:    #e6efe9;
+  --color-focus:         #2f4a63; /* focus ring, navy */
 
   /* Typography */
-  --font-serif: Georgia, "Times New Roman", "Iowan Old Style", serif;
+  --font-serif: "Cormorant Garamond", Georgia, "Times New Roman", serif;
   --font-sans:  system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
   --font-body:  var(--font-sans);
   --font-display: var(--font-serif);
@@ -38,9 +40,9 @@
   --fs-base:  clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
   --fs-sm:    clamp(0.85rem, 0.82rem + 0.15vw, 0.95rem);
   --fs-lg:    clamp(1.15rem, 1.05rem + 0.5vw, 1.35rem);
-  --fs-h1:    clamp(2rem, 1.5rem + 2.4vw, 3.4rem);
-  --fs-h2:    clamp(1.5rem, 1.25rem + 1.2vw, 2.2rem);
-  --fs-h3:    clamp(1.15rem, 1.05rem + 0.5vw, 1.4rem);
+  --fs-h1:    clamp(2.4rem, 1.7rem + 3vw, 4rem);
+  --fs-h2:    clamp(1.8rem, 1.4rem + 1.6vw, 2.6rem);
+  --fs-h3:    clamp(1.3rem, 1.1rem + 0.6vw, 1.55rem);
 
   --line-body: 1.65;
   --line-tight: 1.25;
@@ -61,9 +63,9 @@
   --radius: 10px;
   --radius-sm: 6px;
 
-  /* Borders and shadows: subtle */
-  --shadow-sm: 0 1px 2px rgba(58, 54, 49, 0.06), 0 1px 3px rgba(58, 54, 49, 0.08);
-  --shadow-md: 0 4px 14px rgba(58, 54, 49, 0.08);
+  /* Borders and shadows: soft, layered, navy-tinted */
+  --shadow-sm: 0 1px 2px rgba(44, 71, 96, 0.05), 0 2px 6px rgba(44, 71, 96, 0.05);
+  --shadow-md: 0 10px 30px rgba(44, 71, 96, 0.09), 0 2px 8px rgba(44, 71, 96, 0.06);
   --border-thin: 1px solid var(--color-border);
 
   /* Motion */
@@ -79,7 +81,9 @@ html { scroll-behavior: smooth; }
 
 body {
   margin: 0;
-  background: var(--color-bg);
+  background:
+    radial-gradient(120% 70% at 50% 0%, #fbf8f1 0%, var(--color-bg) 55%) fixed,
+    var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-body);
   font-size: var(--fs-base);
@@ -92,6 +96,7 @@ h1, h2, h3 {
   color: var(--color-heading);
   line-height: var(--line-tight);
   font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
 p { margin: 0 0 var(--space-4); }
@@ -153,6 +158,18 @@ img { max-width: 100%; height: auto; display: block; }
   font-size: var(--fs-h2);
   text-align: center;
   margin: 0 0 var(--space-6);
+}
+/* Elegant brass hairline with a small bead, centered under each heading */
+.section__heading::after {
+  content: "";
+  display: block;
+  width: 4.5rem;
+  height: 8px;
+  margin: var(--space-3) auto 0;
+  background:
+    radial-gradient(circle, var(--color-brass) 0 2px, transparent 2.5px) center / 8px 8px no-repeat,
+    linear-gradient(var(--color-brass), var(--color-brass)) center / 100% 1px no-repeat;
+  opacity: 0.85;
 }
 .section__intro {
   text-align: center;
@@ -309,13 +326,15 @@ img { max-width: 100%; height: auto; display: block; }
 }
 .hero__eyebrow {
   text-transform: uppercase;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.22em;
   font-size: var(--fs-sm);
-  color: var(--color-accent-dark);
-  margin-bottom: var(--space-2);
+  color: var(--color-brass);
+  margin-bottom: var(--space-3);
 }
 .hero__name {
   font-size: var(--fs-h1);
+  font-weight: 600;
+  letter-spacing: 0.015em;
   margin: 0 0 var(--space-2);
 }
 .hero__lifespan {
@@ -323,7 +342,24 @@ img { max-width: 100%; height: auto; display: block; }
   font-size: var(--fs-lg);
   color: var(--color-text-muted);
   font-style: italic;
-  margin-bottom: var(--space-4);
+  margin-bottom: var(--space-3);
+}
+/* Brass flourish: a small diamond flanked by hairlines */
+.hero__flourish {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--color-brass);
+  font-size: 0.7rem;
+  margin: 0 0 var(--space-5);
+}
+.hero__flourish::before,
+.hero__flourish::after {
+  content: "";
+  height: 1px;
+  flex: 0 0 2.75rem;
+  background: var(--color-brass);
+  opacity: 0.65;
 }
 .hero__meta {
   font-size: var(--fs-base);
@@ -346,11 +382,11 @@ img { max-width: 100%; height: auto; display: block; }
 /* Portrait */
 .portrait {
   margin: 0;
-  border-radius: var(--radius);
+  border-radius: 4px;
   overflow: hidden;
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-md);
-  background: var(--color-surface);
+  border: 1px solid var(--color-brass);
+  box-shadow: var(--shadow-md), 0 0 0 6px rgba(255, 253, 248, 0.6);
+  background: var(--color-surface);   /* the mat color shows around the photo */
   aspect-ratio: 4 / 5;
 }
 .portrait img { width: 100%; height: 100%; object-fit: cover; }
@@ -359,8 +395,8 @@ img { max-width: 100%; height: auto; display: block; }
    aspect-ratio; the slideshow fills it with absolute positioning so it does not
    collapse to zero height on mobile browsers. */
 .portrait { position: relative; }
-.slideshow { position: absolute; inset: 0; }
-.slideshow__slides { position: absolute; inset: 0; }
+.slideshow { position: absolute; inset: 0.7rem; box-shadow: inset 0 0 0 1px rgba(44, 71, 96, 0.1); }
+.slideshow__slides { position: absolute; inset: 0; overflow: hidden; }
 .slideshow__slide {
   position: absolute;
   inset: 0;
@@ -481,7 +517,7 @@ img { max-width: 100%; height: auto; display: block; }
 .tribute__quote {
   margin: var(--space-6) 0;
   padding: var(--space-4) var(--space-5);
-  border-left: 4px solid var(--color-accent-soft);
+  border-left: 3px solid var(--color-brass);
   background: var(--color-surface);
   border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
   font-family: var(--font-display);
@@ -549,9 +585,9 @@ img { max-width: 100%; height: auto; display: block; }
 }
 .details__item dt {
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   font-size: 0.72rem;
-  color: var(--color-accent-dark);
+  color: var(--color-brass);
   margin-bottom: var(--space-1);
 }
 .details__item dd { margin: 0; color: var(--color-text); }
@@ -585,7 +621,8 @@ img { max-width: 100%; height: auto; display: block; }
 }
 .schedule__time {
   font-family: var(--font-display);
-  color: var(--color-accent-dark);
+  font-size: var(--fs-lg);
+  color: var(--color-brass);
   font-weight: 600;
 }
 .schedule__title { margin: 0 0 var(--space-1); font-size: var(--fs-h3); }
@@ -749,7 +786,7 @@ img { max-width: 100%; height: auto; display: block; }
   margin: 0;
   background: var(--color-surface);
   border: var(--border-thin);
-  border-left: 4px solid var(--color-accent-soft);
+  border-left: 3px solid var(--color-brass);
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
   padding: var(--space-4) var(--space-5);
@@ -879,6 +916,7 @@ img { max-width: 100%; height: auto; display: block; }
   .hero__media { width: 22rem; max-width: 100%; margin-inline: auto; order: -1; }
   .hero__intro { margin-inline: auto; }
   .hero__actions { justify-content: center; }
+  .hero__flourish { justify-content: center; }
   .tribute__grid { grid-template-columns: 1fr; }
 }
 
