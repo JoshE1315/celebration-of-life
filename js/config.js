@@ -249,7 +249,13 @@ const CONFIG = {
     // start, for example 70.
     startVolume: 100,
 
-    // The song. Paste a YouTube link or video ID.
+    // MOST RELIABLE OPTION: a music file hosted in your own project.
+    // Put an MP3 in assets/audio/ and set the path here, for example
+    // "assets/audio/amazing-grace.mp3". When this is set, it is used instead of
+    // YouTube and is never blocked by networks or embedding rules.
+    audioFile: "", // PLACEHOLDER: e.g. "assets/audio/amazing-grace.mp3"
+
+    // YouTube song, used only when audioFile above is empty.
     // This is the same Amazing Grace recording (Royal Scots Dragoon Guards),
     // from an upload that allows playing on other websites.
     youTube: "OO5y2O_hv3I",

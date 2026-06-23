@@ -2,31 +2,127 @@
  * music.js  -  Background song with a floating Pause / Play control
  * =============================================================================
  *
- * Plays the configured YouTube song in the background. Because browsers block
- * sound from starting before a visitor interacts, the song begins muted and is
- * unmuted at the visitor's first tap, click, key press, or scroll. A small
- * floating button lets anyone pause or resume.
+ * Two ways to provide the song, chosen in config.js:
  *
- * SELF-HEALING: some YouTube uploads do not allow playback on other websites.
- * The config provides a main song plus backups. This module tries each one in
- * order until it finds a version that is allowed to play. If none can play (or
- * the network blocks YouTube), the floating button becomes a "Listen on
- * YouTube" link so the song is always reachable.
+ *   1. audioFile (recommended)  -  a music file hosted in your own project,
+ *      for example "assets/audio/amazing-grace.mp3". This is the most reliable
+ *      option: it is never blocked by networks or YouTube embedding rules.
  *
- * Uses the official YouTube IFrame Player API. No paid services.
+ *   2. youTube  -  a YouTube link or id, with optional backups. Used only when
+ *      audioFile is empty. Some uploads block playback on other sites and some
+ *      networks block YouTube, so this is less reliable.
+ *
+ * Either way: because browsers block sound from starting before a visitor
+ * interacts, the song begins at the visitor's first tap, click, key press, or
+ * scroll. A small floating button lets anyone pause or resume.
  * ========================================================================== */
 
 (function () {
   "use strict";
 
-  var cfg, music, candidates, watchUrl;
-  var player = null;
-  var index = 0;
-  var playerReady = false;
-  var fallback = false;
+  var cfg, music, btn, label;
   var unlocked = false;
-  var attemptTimer = null;
-  var btn, label;
+  var onButtonClick = function () {};
+  var startPlayback = function () {};
+
+  /* ---------------------------------------------------------------------------
+   * SHARED CONTROL BUTTON
+   * -------------------------------------------------------------------------*/
+  function buildControl() {
+    btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "music-toggle";
+    btn.setAttribute("aria-pressed", "false");
+
+    var icon = document.createElement("span");
+    icon.className = "music-toggle__icon";
+    icon.setAttribute("aria-hidden", "true");
+    icon.textContent = "♪";
+
+    label = document.createElement("span");
+    label.className = "music-toggle__label";
+    label.textContent = music.playLabel || "Play music";
+
+    btn.appendChild(icon);
+    btn.appendChild(label);
+    btn.addEventListener("click", function () { onButtonClick(); });
+    document.body.appendChild(btn);
+  }
+
+  function setButtonState(playing, overrideLabel) {
+    if (!btn) return;
+    btn.setAttribute("aria-pressed", playing ? "true" : "false");
+    btn.classList.toggle("is-playing", playing);
+    label.textContent = overrideLabel != null ? overrideLabel
+      : (playing ? (music.pauseLabel || "Pause music") : (music.playLabel || "Play music"));
+  }
+
+  function removeControl() {
+    if (btn && btn.parentNode) btn.parentNode.removeChild(btn);
+    btn = null;
+  }
+
+  /* ---------------------------------------------------------------------------
+   * FIRST-INTERACTION UNLOCK
+   * -------------------------------------------------------------------------*/
+  var interactionEvents = ["pointerdown", "touchstart", "keydown", "scroll", "click"];
+  function onFirstInteraction() {
+    if (unlocked) return;
+    unlocked = true;
+    removeInteractionListeners();
+    if (music.autoplay !== false) startPlayback();
+  }
+  function addInteractionListeners() {
+    interactionEvents.forEach(function (ev) {
+      window.addEventListener(ev, onFirstInteraction, { passive: true });
+    });
+  }
+  function removeInteractionListeners() {
+    interactionEvents.forEach(function (ev) {
+      window.removeEventListener(ev, onFirstInteraction, { passive: true });
+    });
+  }
+
+  function startVolumeFraction() {
+    var v = typeof music.startVolume === "number" ? music.startVolume : 100;
+    if (v < 0) v = 0; if (v > 100) v = 100;
+    return v / 100;
+  }
+
+  /* ===========================================================================
+   * MODE 1: HOSTED AUDIO FILE  (recommended)
+   * ======================================================================== */
+  function initAudioMode() {
+    var audio = document.createElement("audio");
+    audio.src = music.audioFile;
+    audio.loop = music.loop !== false;
+    audio.preload = "auto";
+    audio.volume = startVolumeFraction();
+    audio.setAttribute("aria-hidden", "true");
+    document.body.appendChild(audio);
+
+    onButtonClick = function () {
+      if (audio.paused) { audio.play().catch(function () {}); }
+      else { audio.pause(); }
+    };
+    startPlayback = function () { audio.play().catch(function () {}); };
+
+    audio.addEventListener("play", function () { setButtonState(true); });
+    audio.addEventListener("pause", function () { setButtonState(false); });
+    audio.addEventListener("error", function () {
+      // The file path is wrong or the file is missing. Hide the control.
+      removeControl();
+    });
+
+    buildControl();
+    addInteractionListeners();
+  }
+
+  /* ===========================================================================
+   * MODE 2: YOUTUBE  (fallback when no audioFile is set)
+   * ======================================================================== */
+  var candidates, watchUrl, player = null, index = 0, playerReady = false,
+      ytFallback = false, attemptTimer = null;
 
   function youTubeId(value) {
     var v = String(value || "").trim();
@@ -36,13 +132,11 @@
     return m ? m[1] : "";
   }
 
-  // Build the ordered, de-duplicated list of candidate video ids.
   function buildCandidates() {
     var raw = [];
     if (Array.isArray(music.youTube)) raw = raw.concat(music.youTube);
     else if (music.youTube) raw.push(music.youTube);
     if (Array.isArray(music.alternates)) raw = raw.concat(music.alternates);
-
     var seen = {}, list = [];
     raw.forEach(function (item) {
       var id = youTubeId(item);
@@ -69,39 +163,21 @@
     });
   }
 
-  function isPlaying() {
+  function ytIsPlaying() {
     return player && player.getPlayerState && player.getPlayerState() === 1;
   }
-
-  function setButtonState(playing) {
-    if (!btn || fallback) return;
-    btn.setAttribute("aria-pressed", playing ? "true" : "false");
-    btn.classList.toggle("is-playing", playing);
-    label.textContent = playing ? (music.pauseLabel || "Pause music") : (music.playLabel || "Play music");
-  }
-
-  function startAudible() {
+  function ytStartAudible() {
     if (!player) return;
-    try {
-      player.unMute();
-      player.setVolume(typeof music.startVolume === "number" ? music.startVolume : 100);
-      player.playVideo();
-    } catch (e) { /* ignore */ }
+    try { player.unMute(); player.setVolume(Math.round(startVolumeFraction() * 100)); player.playVideo(); }
+    catch (e) {}
   }
+  function clearAttemptTimer() { if (attemptTimer) { clearTimeout(attemptTimer); attemptTimer = null; } }
 
-  function toggle() {
-    if (fallback) { window.open(watchUrl, "_blank", "noopener"); return; }
-    if (!player || !playerReady) return;
-    if (isPlaying()) { try { player.pauseVideo(); } catch (e) {} }
-    else { startAudible(); }
-  }
-
-  function enterFallback() {
-    if (fallback) return;
-    fallback = true;
+  function enterYtFallback() {
+    if (ytFallback) return;
+    ytFallback = true;
     playerReady = false;
     clearAttemptTimer();
-    removeInteractionListeners();
     if (btn) {
       btn.classList.remove("is-playing");
       btn.removeAttribute("aria-pressed");
@@ -110,50 +186,6 @@
     }
     var holder = document.getElementById("music-player-holder");
     if (holder && holder.parentNode) holder.parentNode.removeChild(holder);
-  }
-
-  function clearAttemptTimer() {
-    if (attemptTimer) { clearTimeout(attemptTimer); attemptTimer = null; }
-  }
-
-  function onFirstInteraction() {
-    if (unlocked || fallback) return;
-    unlocked = true;
-    removeInteractionListeners();
-    if (music.autoplay !== false) startAudible();
-  }
-
-  var interactionEvents = ["pointerdown", "touchstart", "keydown", "scroll", "click"];
-  function addInteractionListeners() {
-    interactionEvents.forEach(function (ev) {
-      window.addEventListener(ev, onFirstInteraction, { passive: true });
-    });
-  }
-  function removeInteractionListeners() {
-    interactionEvents.forEach(function (ev) {
-      window.removeEventListener(ev, onFirstInteraction, { passive: true });
-    });
-  }
-
-  function buildControl() {
-    btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "music-toggle";
-    btn.setAttribute("aria-pressed", "false");
-
-    var icon = document.createElement("span");
-    icon.className = "music-toggle__icon";
-    icon.setAttribute("aria-hidden", "true");
-    icon.textContent = "♪";
-
-    label = document.createElement("span");
-    label.className = "music-toggle__label";
-    label.textContent = music.playLabel || "Play music";
-
-    btn.appendChild(icon);
-    btn.appendChild(label);
-    btn.addEventListener("click", toggle);
-    document.body.appendChild(btn);
   }
 
   function ensureHolder() {
@@ -165,14 +197,11 @@
       document.body.appendChild(holder);
     }
     holder.innerHTML = '<div id="music-player-frame"></div>';
-    return holder;
   }
 
-  // Try the candidate at the current index. Advance on error or timeout.
   function tryCandidate() {
-    if (fallback) return;
-    if (index >= candidates.length) { enterFallback(); return; }
-
+    if (ytFallback) return;
+    if (index >= candidates.length) { enterYtFallback(); return; }
     playerReady = false;
     clearAttemptTimer();
     if (player && player.destroy) { try { player.destroy(); } catch (e) {} player = null; }
@@ -181,15 +210,9 @@
     var id = candidates[index];
     player = new window.YT.Player("music-player-frame", {
       videoId: id,
-      width: "320",
-      height: "180",
+      width: "320", height: "180",
       playerVars: {
-        autoplay: 1,
-        mute: 1,
-        controls: 0,
-        playsinline: 1,
-        rel: 0,
-        modestbranding: 1,
+        autoplay: 1, mute: 1, controls: 0, playsinline: 1, rel: 0, modestbranding: 1,
         loop: music.loop !== false ? 1 : 0,
         playlist: music.loop !== false ? id : undefined,
       },
@@ -198,7 +221,7 @@
           playerReady = true;
           clearAttemptTimer();
           try { player.playVideo(); } catch (e) {}
-          if (unlocked && music.autoplay !== false) startAudible();
+          if (unlocked && music.autoplay !== false) ytStartAudible();
         },
         onStateChange: function (e) {
           setButtonState(e.data === 1);
@@ -206,43 +229,44 @@
             try { player.seekTo(0); player.playVideo(); } catch (err) {}
           }
         },
-        onError: function () {
-          // This upload will not play here. Move on to the next backup.
-          advance();
-        },
+        onError: function () { ytAdvance(); },
       },
     });
 
-    // If this candidate does not become ready in time, move on.
-    attemptTimer = setTimeout(function () {
-      if (!playerReady) advance();
-    }, 6000);
+    attemptTimer = setTimeout(function () { if (!playerReady) ytAdvance(); }, 6000);
+  }
+  function ytAdvance() { clearAttemptTimer(); index += 1; tryCandidate(); }
+
+  function initYouTubeMode() {
+    candidates = buildCandidates();
+    if (!candidates.length) return;
+    watchUrl = "https://www.youtube.com/watch?v=" + candidates[candidates.length - 1];
+
+    onButtonClick = function () {
+      if (ytFallback) { window.open(watchUrl, "_blank", "noopener"); return; }
+      if (!player || !playerReady) return;
+      if (ytIsPlaying()) { try { player.pauseVideo(); } catch (e) {} }
+      else { ytStartAudible(); }
+    };
+    startPlayback = function () { if (music.autoplay !== false) ytStartAudible(); };
+
+    buildControl();
+    addInteractionListeners();
+
+    loadApi().then(function () { tryCandidate(); }).catch(function () { enterYtFallback(); });
   }
 
-  function advance() {
-    clearAttemptTimer();
-    index += 1;
-    tryCandidate();
-  }
-
+  /* ---------------------------------------------------------------------------
+   * START
+   * -------------------------------------------------------------------------*/
   function init() {
     cfg = window.CONFIG;
     if (!cfg) return;
     music = cfg.music || {};
     if (music.enabled === false) return;
 
-    candidates = buildCandidates();
-    if (!candidates.length) return;
-    watchUrl = "https://www.youtube.com/watch?v=" + candidates[candidates.length - 1];
-
-    buildControl();
-    addInteractionListeners();
-
-    loadApi().then(function () {
-      tryCandidate();
-    }).catch(function () {
-      enterFallback();
-    });
+    if (music.audioFile) initAudioMode();
+    else initYouTubeMode();
   }
 
   window.MusicFeature = { init: init };
