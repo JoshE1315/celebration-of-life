@@ -681,6 +681,40 @@ img { max-width: 100%; height: auto; display: block; }
 .faq__answer { padding: 0 var(--space-5) var(--space-4); color: var(--color-text-muted); }
 
 /* ---------------------------------------------------------------------------
+ * CONTACT DIALOG
+ * -------------------------------------------------------------------------*/
+.contact-dialog {
+  width: min(34rem, 92vw);
+  border: var(--border-thin);
+  border-radius: var(--radius);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-md);
+  color: var(--color-text);
+  background: var(--color-surface);
+}
+.contact-dialog::backdrop {
+  background: rgba(58, 54, 49, 0.45);
+}
+.contact-dialog__title { margin: 0 0 var(--space-2); font-size: var(--fs-h3); }
+.contact-dialog__intro { color: var(--color-text-muted); font-size: var(--fs-sm); }
+.contact-dialog__close-form { margin: 0; text-align: right; }
+.contact-dialog__close {
+  background: none;
+  border: none;
+  font-size: 1.75rem;
+  line-height: 1;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 0;
+}
+.contact-dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+/* ---------------------------------------------------------------------------
  * FOOTER
  * -------------------------------------------------------------------------*/
 .site-footer {

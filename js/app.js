@@ -307,6 +307,9 @@
 
     // Initialize the memory wall.
     if (window.MemoriesFeature) window.MemoriesFeature.init();
+
+    // Initialize the contact dialog.
+    if (window.ContactFeature) window.ContactFeature.init();
   }
 
   if (document.readyState === "loading") {

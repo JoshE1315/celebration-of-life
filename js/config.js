@@ -152,13 +152,13 @@ const CONFIG = {
     zip: "", // PLACEHOLDER: add the ZIP code if you would like it shown (Ocean City is 08226)
 
     // Practical guidance. These may be left as friendly placeholders.
-    parking: "PLACEHOLDER: Parking details will be shared closer to the date.",
+    parking: "Street parking is available.",
     dressCode:
       "Comfortable, respectful attire. There is no formal dress requirement.",
     accessibility:
-      "PLACEHOLDER: Accessibility details will be confirmed once the venue is set.",
+      "The venue is wheelchair accessible.",
     reception:
-      "PLACEHOLDER: Light refreshments will be served. Details to follow.",
+      "Details to follow.",
 
     // A map link. Leave as "" to hide the map button.
     // When the venue is set, paste a Google Maps share link here.

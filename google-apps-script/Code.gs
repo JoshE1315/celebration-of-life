@@ -92,6 +92,14 @@ var CONFIG = {
   MEMORIES_SHEET: "Memories",
   MEMORIES_REQUIRE_APPROVAL: true,
   MEMORIES_MAX_LENGTH: 2000,
+
+  // ---------------------------------------------------------------------------
+  // CONTACT FORM  -  "Contact the Family" messages
+  // Messages are emailed to NOTIFY_EMAILS and also saved to this tab as a
+  // record. The family can reply directly to the sender's email.
+  // ---------------------------------------------------------------------------
+  CONTACT_SHEET: "Contact Messages",
+  CONTACT_MAX_LENGTH: 3000,
 };
 
 
@@ -118,6 +126,10 @@ var RESPONSE_HEADERS = [
 
 var MEMORIES_HEADERS = [
   "Timestamp", "Name", "Memory", "Approved", "Memory ID",
+];
+
+var CONTACT_HEADERS = [
+  "Timestamp", "Name", "Email", "Message", "Message ID",
 ];
 
 var SETTINGS_DEFAULTS = [
@@ -178,6 +190,10 @@ function doPost(e) {
 
     if (body.action === "memory") {
       return jsonResponse(handleMemory(body));
+    }
+
+    if (body.action === "contact") {
+      return jsonResponse(handleContact(body));
     }
 
     return jsonResponse(handleRsvp(body));
@@ -533,6 +549,70 @@ function sendMemoryNotification(name, memory, requireApproval) {
 }
 
 
+/* ===========================================================================
+ * CONTACT FORM
+ * ======================================================================== */
+
+/**
+ * Handle a "Contact the Family" message: email it to the family (with the
+ * sender's address as reply-to) and save a copy to the Contact Messages tab.
+ */
+function handleContact(data) {
+  data = data || {};
+  var name = sanitizeText(data.name, 120);
+  var email = sanitizeText(data.email, 200);
+  var message = sanitizeText(data.message, toPositiveInt(CONFIG.CONTACT_MAX_LENGTH, 3000));
+
+  if (!name) return { ok: false, message: "Please add your name." };
+  if (!email || !looksLikeEmail(email)) return { ok: false, message: "Please add a valid email address." };
+  if (!message) return { ok: false, message: "Please write a message." };
+
+  var lock = LockService.getScriptLock();
+  try { lock.waitLock(10000); } catch (e) {
+    return { ok: false, message: "The server is busy. Please try again in a moment." };
+  }
+
+  try {
+    // Save a record so nothing is lost even if email has an issue.
+    var sheet = getSheet(CONFIG.CONTACT_SHEET);
+    ensureHeaders(sheet, CONTACT_HEADERS);
+    var messageId = "MSG-" + Utilities.getUuid().substring(0, 8).toUpperCase();
+    sheet.appendRow([formatTimestamp(new Date()), name, email, message, messageId]);
+
+    // Email the family. Reply-to is set to the sender so the family can reply.
+    var recipients = (CONFIG.NOTIFY_EMAILS || []).filter(function (e) {
+      return e && looksLikeEmail(String(e).trim());
+    });
+    if (recipients.length) {
+      var body = [
+        "You received a message through the Celebration of Life website.",
+        "",
+        "From: " + name,
+        "Email: " + email,
+        "",
+        "Message:",
+        message,
+        "",
+        "-----------------------------------------",
+        "Reply directly to this email to respond to " + name + ".",
+      ].join("\n");
+      MailApp.sendEmail({
+        to: recipients.join(","),
+        replyTo: email,
+        subject: CONFIG.EVENT_LABEL + " message from " + name,
+        body: body,
+      });
+    }
+
+    return { ok: true, message: "Thank you. Your message has been sent to the family." };
+  } catch (err) {
+    return { ok: false, message: "We could not send your message. Please try again." };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+
 /**
  * Insert a new response row, or update the existing one for the same
  * invitation ID. Preserves the original Submission Timestamp and refreshes
@@ -785,6 +865,10 @@ function setupSheet() {
   // Memories (public memory wall)
   var memories = getSheet(CONFIG.MEMORIES_SHEET);
   ensureHeaders(memories, MEMORIES_HEADERS);
+
+  // Contact Messages
+  var contact = getSheet(CONFIG.CONTACT_SHEET);
+  ensureHeaders(contact, CONTACT_HEADERS);
 
   // Settings
   var settings = getSheet(CONFIG.SETTINGS_SHEET);
