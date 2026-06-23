@@ -386,21 +386,40 @@ img { max-width: 100%; height: auto; display: block; }
 }
 .slideshow__caption:empty { display: none; }
 
-/* Music player */
-.section--music { padding-block: var(--space-7); }
-.music-player {
-  position: relative;
-  width: 100%;
-  max-width: 38rem;
-  margin: var(--space-5) auto 0;
-  aspect-ratio: 16 / 9;
-  border-radius: var(--radius);
-  overflow: hidden;
-  border: var(--border-thin);
-  box-shadow: var(--shadow-sm);
-  background: #000;
+/* Background music: hidden offscreen player and a floating control button */
+#music-player-holder {
+  position: fixed;
+  left: -9999px;
+  top: -9999px;
+  width: 320px;
+  height: 180px;
+  pointer-events: none;
 }
-.music-player iframe { width: 100%; height: 100%; border: 0; display: block; }
+.music-toggle {
+  position: fixed;
+  right: var(--space-4);
+  bottom: var(--space-4);
+  z-index: 60;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: 2rem;
+  background: var(--color-surface);
+  color: var(--color-heading);
+  font: inherit;
+  font-size: var(--fs-sm);
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+}
+.music-toggle:hover { border-color: var(--color-accent); }
+.music-toggle__icon { font-size: 1.1rem; line-height: 1; color: var(--color-accent-dark); }
+.music-toggle.is-playing .music-toggle__icon { color: var(--color-accent); }
+
+@media (max-width: 720px) {
+  .music-toggle { right: var(--space-3); bottom: var(--space-3); }
+}
 
 /* Photo upload spacing */
 .photo-upload { margin-top: var(--space-7); }

@@ -256,40 +256,6 @@
   }
 
   /* ---------------------------------------------------------------------------
-   * MUSIC  -  optional YouTube player (click to play, never autoplay)
-   * -------------------------------------------------------------------------*/
-
-  // Pull a YouTube video id out of a full link or a bare id.
-  function youTubeId(value) {
-    var v = String(value || "").trim();
-    if (!v) return "";
-    // Already looks like a bare id.
-    if (/^[A-Za-z0-9_-]{11}$/.test(v)) return v;
-    var m = v.match(/(?:youtu\.be\/|v=|\/embed\/|\/shorts\/)([A-Za-z0-9_-]{11})/);
-    return m ? m[1] : "";
-  }
-
-  function wireMusic(cfg) {
-    var section = document.getElementById("music");
-    if (!section) return;
-    var music = cfg.music;
-    var id = music && music.enabled !== false ? youTubeId(music.youTube) : "";
-    if (!id) { section.remove(); return; } // hidden until a song is added
-
-    var holder = section.querySelector("[data-music-embed]");
-    if (!holder) return;
-    var iframe = document.createElement("iframe");
-    iframe.src = "https://www.youtube-nocookie.com/embed/" + id;
-    iframe.title = music.heading || "A song in memory";
-    iframe.loading = "lazy";
-    iframe.setAttribute("allow", "encrypted-media; picture-in-picture");
-    iframe.setAttribute("allowfullscreen", "");
-    iframe.referrerPolicy = "no-referrer";
-    holder.appendChild(iframe);
-    section.hidden = false;
-  }
-
-  /* ---------------------------------------------------------------------------
    * CALENDAR BUTTON
    * -------------------------------------------------------------------------*/
   function wireCalendar() {
@@ -332,7 +298,9 @@
     wireNavToggle();
     wireCalendar();
     wirePrivacyToggle();
-    wireMusic(cfg);
+
+    // Initialize the background music player.
+    if (window.MusicFeature) window.MusicFeature.init();
 
     // Update the document title with the name once known.
     if (cfg.deceased.fullName && cfg.deceased.fullName.indexOf("Full Name") === -1) {

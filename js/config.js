@@ -232,13 +232,22 @@ const CONFIG = {
     // Turn the music player on or off.
     enabled: true,
 
-    heading: "A Song in His Memory",
-    note: "Press play to listen. The music will not start on its own.",
+    // Start the song on its own. Because browsers block sound from starting
+    // before a visitor interacts, the song begins at the visitor's first tap,
+    // click, or scroll. A floating button lets anyone pause it.
+    // Set to false to require pressing the button before any music plays.
+    autoplay: true,
+
+    // Text shown on the floating music button.
+    playLabel: "Play music",
+    pauseLabel: "Pause music",
+
+    // Loop the song so it keeps playing while the page is open.
+    loop: true,
 
     // Paste the YouTube link or video ID of the song you choose.
     // Example link: https://www.youtube.com/watch?v=XXXXXXXXXXX
-    // Example ID:   XXXXXXXXXXX
-    // Leave blank to hide the player until you add a song.
+    // Leave blank to turn the music off until you add a song.
     youTube: "https://youtu.be/M8AeV8Jbx6M",
   },
 
