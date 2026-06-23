@@ -338,6 +338,80 @@ img { max-width: 100%; height: auto; display: block; }
   aspect-ratio: 4 / 5;
 }
 .portrait img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Slideshow inside the portrait frame */
+.slideshow { position: relative; width: 100%; height: 100%; }
+.slideshow__slides { position: relative; width: 100%; height: 100%; }
+.slideshow__slide {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 600ms ease;
+  pointer-events: none;
+}
+.slideshow__slide.is-active { opacity: 1; pointer-events: auto; }
+/* The placeholder slide is a flex box, not an image */
+.portrait__placeholder.slideshow__slide { display: none; }
+.portrait__placeholder.slideshow__slide.is-active { display: flex; }
+
+.slideshow__nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2.5rem; height: 2.5rem;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.82);
+  color: var(--color-heading);
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  z-index: 2;
+}
+.slideshow__nav--prev { left: var(--space-3); }
+.slideshow__nav--next { right: var(--space-3); }
+.slideshow__nav:hover { background: #fff; }
+.slideshow__caption {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  background: linear-gradient(transparent, rgba(58, 54, 49, 0.65));
+  color: #fff;
+  font-size: var(--fs-sm);
+  z-index: 1;
+}
+.slideshow__caption:empty { display: none; }
+
+/* Music player */
+.section--music { padding-block: var(--space-7); }
+.music-player {
+  position: relative;
+  width: 100%;
+  max-width: 38rem;
+  margin: var(--space-5) auto 0;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: var(--border-thin);
+  box-shadow: var(--shadow-sm);
+  background: #000;
+}
+.music-player iframe { width: 100%; height: 100%; border: 0; display: block; }
+
+/* Photo upload spacing */
+.photo-upload { margin-top: var(--space-7); }
+.photo-upload .field input[type="file"] {
+  width: 100%;
+  font: inherit;
+  padding: var(--space-3);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
 .portrait__placeholder {
   width: 100%; height: 100%;
   display: flex; align-items: center; justify-content: center;

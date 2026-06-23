@@ -58,8 +58,15 @@
           <!-- Portrait is filled in by app.js from config. A placeholder shows
                if no portrait is set. Alt text comes from config. -->
           <figure class="portrait" data-portrait-figure>
-            <div class="portrait__placeholder" data-portrait-placeholder aria-hidden="true">
-              <span>Photograph</span>
+            <div class="slideshow" data-slideshow>
+              <div class="slideshow__slides" data-slideshow-slides>
+                <div class="portrait__placeholder slideshow__slide is-active" data-portrait-placeholder aria-hidden="true">
+                  <span>Photograph</span>
+                </div>
+              </div>
+              <button class="slideshow__nav slideshow__nav--prev" type="button" data-slideshow-prev hidden aria-label="Previous photo">&#8249;</button>
+              <button class="slideshow__nav slideshow__nav--next" type="button" data-slideshow-next hidden aria-label="Next photo">&#8250;</button>
+              <p class="slideshow__caption" data-slideshow-caption></p>
             </div>
           </figure>
         </div>
@@ -115,6 +122,15 @@
             <img data-tribute-photo src="" alt="" />
           </figure>
         </div>
+      </div>
+    </section>
+
+    <!-- ===================== MUSIC ===================== -->
+    <section id="music" class="section section--music" aria-labelledby="music-heading" hidden>
+      <div class="container container--narrow">
+        <h2 id="music-heading" class="section__heading" data-config="music.heading">A Song in His Memory</h2>
+        <p class="section__intro" data-config="music.note"></p>
+        <div class="music-player" data-music-embed></div>
       </div>
     </section>
 
@@ -405,6 +421,42 @@
         <div class="memory-wall" data-memory-list aria-live="polite">
           <p class="memory-wall__empty" data-memory-empty>Loading memories...</p>
         </div>
+
+        <!-- Photo upload (shown only when photos are enabled) -->
+        <div class="photo-upload" data-photo-upload hidden>
+          <h3 class="memory-wall__heading" data-config="photos.heading">Share a Photo</h3>
+          <p class="section__intro" data-config="photos.intro"></p>
+
+          <div class="form-status" data-photo-status role="status" aria-live="polite"></div>
+
+          <form id="photo-form" class="memory-form" novalidate>
+            <div class="field">
+              <label for="photoName">Your name <span class="req" aria-hidden="true">*</span></label>
+              <input type="text" id="photoName" name="photoName" autocomplete="name"
+                     aria-describedby="photoName-error" required />
+              <p class="field__error" id="photoName-error" data-error-for="photoName" aria-live="polite"></p>
+            </div>
+
+            <div class="field">
+              <label for="photoCaption">Caption <span class="field__optional">(optional)</span></label>
+              <input type="text" id="photoCaption" name="photoCaption"
+                     placeholder="For example, where or when the photo was taken" />
+            </div>
+
+            <div class="field">
+              <label for="photoFile">Choose a photo <span class="req" aria-hidden="true">*</span></label>
+              <input type="file" id="photoFile" name="photoFile" accept="image/*"
+                     aria-describedby="photoFile-help photoFile-error" />
+              <p class="field__help" id="photoFile-help">A JPG or PNG image. It will appear once the family approves it.</p>
+              <p class="field__error" id="photoFile-error" data-error-for="photoFile" aria-live="polite"></p>
+            </div>
+
+            <button class="btn btn--primary" type="submit" data-photo-submit>
+              <span data-photo-submit-label>Upload Photo</span>
+              <span class="spinner" data-photo-spinner hidden aria-hidden="true"></span>
+            </button>
+          </form>
+        </div>
       </div>
     </section>
 
@@ -543,6 +595,7 @@
   <script src="js/rsvp.js"></script>
   <script src="js/memories.js"></script>
   <script src="js/contact.js"></script>
+  <script src="js/photos.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

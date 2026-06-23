@@ -195,14 +195,51 @@ const CONFIG = {
     heading: "Share a Memory",
     intro:
       "We would love to hear from you. Share a memory, a story, or a few kind " +
-      "words about Stanley below. Your message will appear here for everyone " +
-      "to read once the family has had a chance to see it.",
+      "words about Stanley below, and they will appear here for everyone to read.",
 
     // The label on the submit button.
     submitLabel: "Post Memory",
 
     // The most characters a memory may contain (must match the backend value).
     maxLength: 2000,
+  },
+
+  /* ---------------------------------------------------------------------------
+   * 5c. PHOTO SLIDESHOW  -  visitors can submit photos for the hero slideshow
+   * -------------------------------------------------------------------------*/
+
+  photos: {
+    // Turn photo uploads on or off.
+    enabled: true,
+
+    heading: "Share a Photo",
+    intro:
+      "Have a favorite photo of Stanley? Add it here. Once the family approves " +
+      "it, it will join the slideshow at the top of this page.",
+
+    submitLabel: "Upload Photo",
+
+    // Photos are shrunk in the browser before uploading so they send quickly.
+    // This is the longest edge in pixels. 1600 looks crisp and stays small.
+    maxDimension: 1600,
+  },
+
+  /* ---------------------------------------------------------------------------
+   * 5d. MUSIC  -  an optional song people can press play to hear
+   * -------------------------------------------------------------------------*/
+
+  music: {
+    // Turn the music player on or off.
+    enabled: true,
+
+    heading: "A Song in His Memory",
+    note: "Press play to listen. The music will not start on its own.",
+
+    // Paste the YouTube link or video ID of the song you choose.
+    // Example link: https://www.youtube.com/watch?v=XXXXXXXXXXX
+    // Example ID:   XXXXXXXXXXX
+    // Leave blank to hide the player until you add a song.
+    youTube: "", // PLACEHOLDER: paste the YouTube link to your chosen song
   },
 
 

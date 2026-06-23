@@ -90,7 +90,7 @@ var CONFIG = {
   //           confident the audience is small and trusted.
   // ---------------------------------------------------------------------------
   MEMORIES_SHEET: "Memories",
-  MEMORIES_REQUIRE_APPROVAL: true,
+  MEMORIES_REQUIRE_APPROVAL: false,
   MEMORIES_MAX_LENGTH: 2000,
 
   // ---------------------------------------------------------------------------
@@ -100,6 +100,17 @@ var CONFIG = {
   // ---------------------------------------------------------------------------
   CONTACT_SHEET: "Contact Messages",
   CONTACT_MAX_LENGTH: 3000,
+
+  // ---------------------------------------------------------------------------
+  // PHOTO WALL  -  visitors submit photos that appear in the hero slideshow
+  // Photos ALWAYS need your approval before they show, because images are
+  // public and cannot be un-seen. Approve by setting the Approved cell to Yes
+  // in the Photos tab. Uploaded files are stored in a Google Drive folder.
+  // ---------------------------------------------------------------------------
+  PHOTOS_SHEET: "Photos",
+  PHOTOS_FOLDER_NAME: "Celebration of Life Photos",
+  PHOTOS_MAX_BYTES: 10 * 1024 * 1024, // reject decoded images larger than this
+  PHOTOS_MAX_RETURNED: 50,            // most photos to show in the slideshow
 };
 
 
@@ -130,6 +141,10 @@ var MEMORIES_HEADERS = [
 
 var CONTACT_HEADERS = [
   "Timestamp", "Name", "Email", "Message", "Message ID",
+];
+
+var PHOTOS_HEADERS = [
+  "Timestamp", "Name", "Caption", "File ID", "View URL", "Approved", "Photo ID",
 ];
 
 var SETTINGS_DEFAULTS = [
@@ -165,6 +180,9 @@ function doGet(e) {
     if (params.action === "memories") {
       return jsonResponse(handleListMemories());
     }
+    if (params.action === "photos") {
+      return jsonResponse(handleListPhotos());
+    }
     // A plain visit confirms the service is alive without leaking anything.
     return jsonResponse({ ok: true, service: "Celebration of Life RSVP", message: "Service is running." });
   } catch (err) {
@@ -194,6 +212,10 @@ function doPost(e) {
 
     if (body.action === "contact") {
       return jsonResponse(handleContact(body));
+    }
+
+    if (body.action === "photo") {
+      return jsonResponse(handlePhoto(body));
     }
 
     return jsonResponse(handleRsvp(body));
@@ -613,6 +635,138 @@ function handleContact(data) {
 }
 
 
+/* ===========================================================================
+ * PHOTO WALL
+ * ======================================================================== */
+
+/** Find the Drive folder for photos, creating it if it does not exist yet. */
+function getPhotosFolder() {
+  var name = CONFIG.PHOTOS_FOLDER_NAME;
+  var existing = DriveApp.getFoldersByName(name);
+  if (existing.hasNext()) return existing.next();
+  return DriveApp.createFolder(name);
+}
+
+/**
+ * Save a photo submitted by a visitor. The image arrives as base64 text. It is
+ * stored in Drive, shared as view-only by link, and recorded as NOT approved.
+ * It appears on the website only after the family sets Approved to Yes.
+ */
+function handlePhoto(data) {
+  data = data || {};
+  var name = sanitizeText(data.name, 80);
+  var caption = sanitizeText(data.caption, 200);
+  var mimeType = String(data.mimeType || "").toLowerCase();
+  var base64 = String(data.dataBase64 || "");
+
+  if (!name) return { ok: false, message: "Please add your name." };
+  if (!base64) return { ok: false, message: "Please choose a photo." };
+  if (mimeType.indexOf("image/") !== 0) {
+    return { ok: false, message: "Please upload an image file (JPG or PNG)." };
+  }
+
+  // Decode and guard the size on the server.
+  var bytes;
+  try {
+    bytes = Utilities.base64Decode(base64);
+  } catch (e) {
+    return { ok: false, message: "That photo could not be read. Please try another." };
+  }
+  if (bytes.length > toPositiveInt(CONFIG.PHOTOS_MAX_BYTES, 10485760)) {
+    return { ok: false, message: "That photo is too large. Please choose a smaller one." };
+  }
+
+  var lock = LockService.getScriptLock();
+  try { lock.waitLock(15000); } catch (e) {
+    return { ok: false, message: "The server is busy. Please try again in a moment." };
+  }
+
+  try {
+    var ext = mimeType.indexOf("png") !== -1 ? ".png" : ".jpg";
+    var safeName = name.replace(/[^A-Za-z0-9 ]/g, "").substring(0, 40) || "guest";
+    var fileName = "memory-" + safeName + "-" + new Date().getTime() + ext;
+
+    var blob = Utilities.newBlob(bytes, mimeType, fileName);
+    var folder = getPhotosFolder();
+    var file = folder.createFile(blob);
+
+    // Make it viewable by the website (anyone with the link can view).
+    try {
+      file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    } catch (shareErr) {
+      // Some Workspace accounts restrict link sharing; the file is still saved.
+    }
+
+    var fileId = file.getId();
+    var viewUrl = "https://drive.google.com/thumbnail?id=" + fileId + "&sz=w1600";
+    var photoId = "PHO-" + Utilities.getUuid().substring(0, 8).toUpperCase();
+
+    var sheet = getSheet(CONFIG.PHOTOS_SHEET);
+    ensureHeaders(sheet, PHOTOS_HEADERS);
+    // Column order matches PHOTOS_HEADERS. Approved starts as No.
+    sheet.appendRow([formatTimestamp(new Date()), name, caption, fileId, viewUrl, "No", photoId]);
+
+    try { sendPhotoNotification(name, caption); } catch (notifyErr) {}
+
+    return {
+      ok: true,
+      approved: false,
+      message: "Thank you. Your photo has been sent to the family and will appear once approved.",
+    };
+  } catch (err) {
+    return { ok: false, message: "We could not save your photo. Please try again." };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/** Return approved photos for the slideshow: only the image URL and caption. */
+function handleListPhotos() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(CONFIG.PHOTOS_SHEET);
+  if (!sheet) return { ok: true, photos: [] };
+
+  var values = sheet.getDataRange().getValues();
+  if (values.length < 2) return { ok: true, photos: [] };
+
+  var col = headerIndexMap(values[0]);
+  var list = [];
+  for (var r = 1; r < values.length; r++) {
+    if (!isTruthy(values[r][col["Approved"]])) continue;
+    var url = String(values[r][col["View URL"]] || "").trim();
+    if (!url) continue;
+    list.push({
+      url: url,
+      caption: String(values[r][col["Caption"]] || ""),
+      name: String(values[r][col["Name"]] || ""),
+    });
+  }
+  list.reverse(); // newest first
+  var max = toPositiveInt(CONFIG.PHOTOS_MAX_RETURNED, 50);
+  if (list.length > max) list = list.slice(0, max);
+  return { ok: true, photos: list };
+}
+
+/** Email the family when a new photo is posted, so they can review it. */
+function sendPhotoNotification(name, caption) {
+  var recipients = (CONFIG.NOTIFY_EMAILS || []).filter(function (e) {
+    return e && looksLikeEmail(String(e).trim());
+  });
+  if (!recipients.length) return;
+  var lines = [
+    name + " uploaded a photo" + (caption ? ": " + caption : ".") ,
+    "",
+    "To show it on the website, open the Photos tab in your spreadsheet and",
+    "change this photo's Approved cell to Yes.",
+  ];
+  MailApp.sendEmail({
+    to: recipients.join(","),
+    subject: CONFIG.EVENT_LABEL + " photo from " + name + " (needs approval)",
+    body: lines.join("\n"),
+  });
+}
+
+
 /**
  * Insert a new response row, or update the existing one for the same
  * invitation ID. Preserves the original Submission Timestamp and refreshes
@@ -869,6 +1023,12 @@ function setupSheet() {
   // Contact Messages
   var contact = getSheet(CONFIG.CONTACT_SHEET);
   ensureHeaders(contact, CONTACT_HEADERS);
+
+  // Photos (public photo wall). Creating the folder now also prompts for the
+  // Drive permission during setup, so uploads work later.
+  var photos = getSheet(CONFIG.PHOTOS_SHEET);
+  ensureHeaders(photos, PHOTOS_HEADERS);
+  getPhotosFolder();
 
   // Settings
   var settings = getSheet(CONFIG.SETTINGS_SHEET);
