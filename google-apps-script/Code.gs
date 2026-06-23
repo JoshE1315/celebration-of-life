@@ -1178,22 +1178,40 @@ function setupSheet() {
 function buildSummaryFormulas(summary) {
   var inv = "'" + CONFIG.INVITATION_SHEET + "'";
   var resp = "'" + CONFIG.RESPONSE_SHEET + "'";
+  var mem = "'" + CONFIG.MEMORIES_SHEET + "'";
+  var pho = "'" + CONFIG.PHOTOS_SHEET + "'";
+  var con = "'" + CONFIG.CONTACT_SHEET + "'";
 
   var rows = [
-    ["Summary", ""],
+    ["Summary (updates automatically)", ""],
     ["Invitations Issued", "=COUNTA(" + inv + "!A2:A)"],
-    ["Invitations Sent", "=COUNTIF(" + inv + "!J2:J, TRUE) + COUNTIF(" + inv + "!J2:J, \"Yes\")"],
     ["Households Attending", "=COUNTIF(" + resp + "!G2:G, \"Attending\")"],
+    ["Households Tentative", "=COUNTIF(" + resp + "!G2:G, \"Tentative\")"],
     ["Households Not Attending", "=COUNTIF(" + resp + "!G2:G, \"Not Attending\")"],
-    ["Tentative Households", "=COUNTIF(" + resp + "!G2:G, \"Tentative\")"],
-    ["No Responses", "=COUNTA(" + inv + "!A2:A) - COUNTA(" + resp + "!B2:B)"],
+    ["No Response Yet", "=COUNTA(" + inv + "!A2:A) - COUNTA(" + resp + "!B2:B)"],
     ["Total Confirmed Guests", "=SUMIF(" + resp + "!G2:G, \"Attending\", " + resp + "!H2:H)"],
+    ["Total Tentative Guests", "=SUMIF(" + resp + "!G2:G, \"Tentative\", " + resp + "!H2:H)"],
     ["Dietary Requests", "=COUNTIF(" + resp + "!K2:K, \"?*\")"],
     ["Accessibility Requests", "=COUNTIF(" + resp + "!L2:L, \"?*\")"],
-    ["Follow-Ups Needed", "=COUNTIF(" + inv + "!N2:N, TRUE) + COUNTIF(" + inv + "!N2:N, \"Yes\")"],
+    ["Memories Posted", "=COUNTA(" + mem + "!A2:A)"],
+    ["Photos Submitted", "=COUNTA(" + pho + "!A2:A)"],
+    ["Contact Messages", "=COUNTA(" + con + "!A2:A)"],
   ];
   summary.getRange(1, 1, rows.length, 2).setValues(rows);
   summary.setFrozenRows(1);
+}
+
+/**
+ * rebuildSummary()
+ * Run this from the editor to wipe the Summary tab and write fresh, current
+ * formulas. Use it any time the Summary looks wrong or out of date. It does not
+ * touch any of your other data.
+ */
+function rebuildSummary() {
+  var summary = getSheet(CONFIG.SUMMARY_SHEET);
+  summary.clear();
+  buildSummaryFormulas(summary);
+  SpreadsheetApp.getActiveSpreadsheet().toast("Summary rebuilt with current formulas.");
 }
 
 /**
