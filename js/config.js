@@ -140,9 +140,9 @@ const CONFIG = {
     // When known, use 24-hour format for startTime24/endTime24 so the
     // calendar file is correct, and friendly text for startTimeDisplay.
     startTimeDisplay: "1:00 PM",
-    endTimeDisplay: "4:00 PM",
+    endTimeDisplay: "3:00 PM",
     startTime24: "13:00",
-    endTime24: "16:00",
+    endTime24: "15:00",
 
     // Venue. Use "TBD" until known.
     venueName: "Ove's Restaurant",
