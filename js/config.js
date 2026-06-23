@@ -318,21 +318,22 @@ const CONFIG = {
     {
       question: "Where should I park?",
       answer:
-        "Parking details will be shared closer to the date once the venue is " +
-        "confirmed. Please check back for the latest information.",
+        "Street parking is available near Ove's Restaurant at 4th Street and " +
+        "the Boardwalk. As it is a summer weekend at the shore, please allow a " +
+        "little extra time to find a spot.",
     },
     {
       question: "Will food be served?",
       answer:
-        "Light refreshments are planned. Final details will be added here " +
-        "once they are confirmed.",
+        "Yes. We will share lunch together, along with refreshments, as part " +
+        "of the gathering. Please note any dietary needs on your RSVP so we can " +
+        "plan accordingly.",
     },
     {
       question: "Is the venue accessible?",
       answer:
-        "We are committed to a welcoming gathering. Accessibility details " +
-        "will be confirmed once the venue is set. If you have specific needs, " +
-        "please note them on the RSVP form so we can help.",
+        "Yes. The venue is wheelchair accessible. If you have any specific " +
+        "needs, please note them on your RSVP and we will do our best to help.",
     },
     {
       question: "What happens if my plans change?",
@@ -344,8 +345,8 @@ const CONFIG = {
     {
       question: "Who should I contact with questions?",
       answer:
-        "Please reach out to the family using the contact details in the " +
-        "footer of this page. We are glad to help.",
+        "You can reach us anytime using the Contact the Family button on this " +
+        "page. We are glad to help.",
     },
   ],
 
