@@ -117,6 +117,26 @@ var CONFIG = {
   // these emails go to just that person by default. (RSVP, memory, and contact
   // emails still go to everyone in NOTIFY_EMAILS.)
   PHOTOS_APPROVER_EMAILS: ["joshe1315@gmail.com"],
+
+  // ---------------------------------------------------------------------------
+  // TEXT MESSAGE ALERTS  -  a short text so you do not miss an email
+  // This uses each carrier's free email-to-text gateway. Add an address in the
+  // form number@gateway. Common gateways:
+  //   T-Mobile:  number@tmomail.net
+  //   AT&T:      number@txt.att.net
+  //   Google Fi: number@msg.fi.google.com
+  //   Cricket:   number@sms.cricketwireless.net
+  //   Verizon:   number@vtext.com  (often unreliable; Verizon has limited this)
+  // These gateways are free but carrier-dependent and not guaranteed.
+  // ---------------------------------------------------------------------------
+  SMS_ALERTS: {
+    enabled: true,
+    recipients: ["8503196229@tmomail.net"], // Josh, T-Mobile
+    onRsvp: true,
+    onPhoto: true,
+    onContact: true,
+    onMemory: false,
+  },
 };
 
 
@@ -377,6 +397,10 @@ function handleRsvp(data) {
     } catch (notifyErr) {
       // Intentionally ignored so the guest still sees success.
     }
+    try {
+      sendSmsAlert("New RSVP: " + record.primaryName + " (" + record.rsvpStatus + "). " +
+        totals.confirmedGuests + " confirmed so far. Check your email.", "rsvp");
+    } catch (smsErr) {}
 
     return { ok: true, responseId: saved.responseId, updated: saved.updated, confirmedGuests: totals.confirmedGuests };
   } catch (err) {
@@ -478,6 +502,31 @@ function sendRsvpNotification(record, totals, wasUpdate) {
     to: recipients.join(","),
     subject: subject,
     body: lines.join("\n"),
+  });
+}
+
+
+/**
+ * Send a short text-message alert via the carrier email-to-text gateways listed
+ * in CONFIG.SMS_ALERTS. eventType is "rsvp", "photo", "contact", or "memory".
+ * This is best-effort: any failure is ignored so the main action still works.
+ */
+function sendSmsAlert(message, eventType) {
+  var cfg = CONFIG.SMS_ALERTS;
+  if (!cfg || cfg.enabled === false) return;
+  var flags = { rsvp: cfg.onRsvp, photo: cfg.onPhoto, contact: cfg.onContact, memory: cfg.onMemory };
+  if (eventType && flags[eventType] === false) return;
+
+  var recipients = (cfg.recipients || []).filter(function (a) {
+    return a && String(a).indexOf("@") !== -1;
+  });
+  if (!recipients.length) return;
+
+  // Keep it short; carrier gateways truncate long texts.
+  MailApp.sendEmail({
+    to: recipients.join(","),
+    subject: "",
+    body: String(message).substring(0, 280),
   });
 }
 
@@ -640,6 +689,8 @@ function handleContact(data) {
       });
     }
 
+    try { sendSmsAlert("New message from " + name + " via Contact the Family. Check your email.", "contact"); } catch (smsErr) {}
+
     return { ok: true, message: "Thank you. Your message has been sent to the family." };
   } catch (err) {
     return { ok: false, message: "We could not send your message. Please try again." };
@@ -721,6 +772,7 @@ function handlePhoto(data) {
     sheet.appendRow([formatTimestamp(new Date()), name, caption, fileId, viewUrl, "No", photoId]);
 
     try { sendPhotoNotification(name, caption, photoId, viewUrl, fileId); } catch (notifyErr) {}
+    try { sendSmsAlert("New photo to approve for the Celebration of Life. Check your email to approve or decline.", "photo"); } catch (smsErr) {}
 
     return {
       ok: true,
@@ -1262,6 +1314,17 @@ function testRsvp() {
  */
 function testTotals() {
   Logger.log(JSON.stringify(computeTotals()));
+}
+
+/**
+ * testSms()
+ * Sends a sample text to the numbers in CONFIG.SMS_ALERTS so you can confirm
+ * your carrier gateway works. If you do not receive it within a few minutes,
+ * your carrier may have limited email-to-text and we can adjust.
+ */
+function testSms() {
+  sendSmsAlert("Test alert from your Celebration of Life site. If you got this, text alerts are working.", "rsvp");
+  Logger.log("Test text sent to: " + (CONFIG.SMS_ALERTS.recipients || []).join(", "));
 }
 
 /**
