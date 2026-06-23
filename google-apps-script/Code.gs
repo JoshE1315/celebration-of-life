@@ -530,6 +530,19 @@ function sendSmsAlert(message, eventType) {
   });
 }
 
+/**
+ * Returns true if we already sent a text for this event type very recently.
+ * Used so a burst of photo uploads sends one text, not ten.
+ */
+function recentlySmsAlerted(type) {
+  try { return CacheService.getScriptCache().get("sms_" + type) === "1"; }
+  catch (e) { return false; }
+}
+function markSmsAlerted(type) {
+  try { CacheService.getScriptCache().put("sms_" + type, "1", 600); } // 10 minutes
+  catch (e) {}
+}
+
 
 /* ===========================================================================
  * MEMORY WALL
@@ -772,7 +785,13 @@ function handlePhoto(data) {
     sheet.appendRow([formatTimestamp(new Date()), name, caption, fileId, viewUrl, "No", photoId]);
 
     try { sendPhotoNotification(name, caption, photoId, viewUrl, fileId); } catch (notifyErr) {}
-    try { sendSmsAlert("New photo to approve for the Celebration of Life. Check your email to approve or decline.", "photo"); } catch (smsErr) {}
+    // One text per burst of uploads, so a batch of photos does not send many.
+    try {
+      if (!recentlySmsAlerted("photo")) {
+        sendSmsAlert("New photo(s) to approve for the Celebration of Life. Check your email to approve or decline.", "photo");
+        markSmsAlerted("photo");
+      }
+    } catch (smsErr) {}
 
     return {
       ok: true,

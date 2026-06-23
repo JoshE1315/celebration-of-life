@@ -214,12 +214,12 @@ const CONFIG = {
     // Turn photo uploads on or off.
     enabled: true,
 
-    heading: "Share a Photo",
+    heading: "Share Photos",
     intro:
-      "Have a favorite photo of Stanley? Add it here. Once the family approves " +
-      "it, it will join the slideshow at the top of this page.",
+      "Have favorite photos of Stanley? Add up to 10 at a time. Once the family " +
+      "approves them, they will join the slideshow at the top of this page.",
 
-    submitLabel: "Upload Photo",
+    submitLabel: "Upload Photos",
 
     // Photos are shrunk in the browser before uploading so they send quickly.
     // This is the longest edge in pixels. 1600 looks crisp and stays small.

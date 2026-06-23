@@ -162,10 +162,36 @@
     });
   }
 
-  function setSubmitting(isLoading) {
+  // The most photos a visitor may send in one upload.
+  var MAX_PHOTOS = 10;
+
+  function setSubmitting(isLoading, labelText) {
     els.submit.disabled = isLoading;
-    els.submitLabel.textContent = isLoading ? "Uploading..." : (cfg.photos.submitLabel || "Upload Photo");
+    els.submitLabel.textContent = isLoading
+      ? (labelText || "Uploading...")
+      : (cfg.photos.submitLabel || "Upload Photos");
     els.spinner.hidden = !isLoading;
+  }
+
+  // Upload one already-shrunk photo. Returns a promise of the backend result.
+  function uploadOne(name, caption, image) {
+    var payload = {
+      action: "photo",
+      name: name,
+      caption: caption,
+      mimeType: image.mimeType,
+      dataBase64: image.dataBase64,
+    };
+    if (isDemoMode()) {
+      return new Promise(function (resolve) {
+        setTimeout(function () { resolve({ ok: true, demo: true }); }, 400);
+      });
+    }
+    return fetch(cfg.appsScriptUrl, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload),
+    }).then(function (res) { return res.json(); });
   }
 
   function handleSubmit(event) {
@@ -177,56 +203,60 @@
 
     var name = clean(els.form.photoName.value);
     var caption = clean(els.form.photoCaption.value);
-    var file = els.form.photoFile.files && els.form.photoFile.files[0];
+    var files = els.form.photoFile.files
+      ? Array.prototype.slice.call(els.form.photoFile.files) : [];
 
     var firstBad = null;
     if (!name) { setError("photoName", "Please add your name."); firstBad = els.form.photoName; }
-    if (!file) { setError("photoFile", "Please choose a photo."); if (!firstBad) firstBad = els.form.photoFile; }
-    else if (file.type.indexOf("image/") !== 0) {
-      setError("photoFile", "Please choose an image file."); if (!firstBad) firstBad = els.form.photoFile;
+    if (!files.length) {
+      setError("photoFile", "Please choose at least one photo.");
+      if (!firstBad) firstBad = els.form.photoFile;
+    } else if (files.length > MAX_PHOTOS) {
+      setError("photoFile", "Please choose up to " + MAX_PHOTOS + " photos at a time.");
+      if (!firstBad) firstBad = els.form.photoFile;
+    } else {
+      for (var i = 0; i < files.length; i++) {
+        if (files[i].type.indexOf("image/") !== 0) {
+          setError("photoFile", "Please choose image files only (JPG or PNG).");
+          if (!firstBad) firstBad = els.form.photoFile;
+          break;
+        }
+      }
     }
     if (firstBad) { firstBad.focus(); return; }
 
     submitting = true;
-    setSubmitting(true);
+    setSubmitting(true, "Uploading...");
 
-    shrinkImage(file)
-      .then(function (image) {
-        var payload = {
-          action: "photo",
-          name: name,
-          caption: caption,
-          mimeType: image.mimeType,
-          dataBase64: image.dataBase64,
-        };
-        if (isDemoMode()) {
-          return new Promise(function (resolve) {
-            setTimeout(function () {
-              resolve({ ok: true, message: "Demonstration mode: your photo was not sent. Connect the backend to collect photos." });
-            }, 700);
-          });
-        }
-        return fetch(cfg.appsScriptUrl, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify(payload),
-        }).then(function (res) { return res.json(); });
-      })
-      .then(function (result) {
-        if (result && result.ok) {
-          announce("success", result.message || "Thank you. Your photo has been sent to the family.");
-          els.form.reset();
-        } else {
-          announce("error", (result && result.message) || "We could not upload your photo. Please try again.");
-        }
-      })
-      .catch(function () {
-        announce("error", "We could not upload your photo. Please try a different image or try again.");
-      })
-      .finally(function () {
-        submitting = false;
-        setSubmitting(false);
+    // Upload the photos one after another so the server is never overwhelmed.
+    var ok = 0, failed = 0;
+    var chain = Promise.resolve();
+    files.forEach(function (file, index) {
+      chain = chain.then(function () {
+        setSubmitting(true, "Uploading " + (index + 1) + " of " + files.length + "...");
+        return shrinkImage(file)
+          .then(function (image) { return uploadOne(name, caption, image); })
+          .then(function (result) { if (result && result.ok) ok++; else failed++; })
+          .catch(function () { failed++; });
       });
+    });
+
+    chain.then(function () {
+      var total = files.length;
+      if (ok > 0 && failed === 0) {
+        var word = ok === 1 ? "photo has" : (ok + " photos have");
+        announce("success", "Thank you. Your " + word +
+          " been sent to the family and will appear once approved.");
+        els.form.reset();
+      } else if (ok > 0 && failed > 0) {
+        announce("error", "Sent " + ok + " of " + total + " photos. " + failed +
+          " could not be uploaded. Please try those again.");
+      } else {
+        announce("error", "We could not upload your photos. Please try again, or try smaller images.");
+      }
+      submitting = false;
+      setSubmitting(false);
+    });
   }
 
   /* ---------------------------------------------------------------------------
