@@ -111,6 +111,12 @@ var CONFIG = {
   PHOTOS_FOLDER_NAME: "Celebration of Life Photos",
   PHOTOS_MAX_BYTES: 10 * 1024 * 1024, // reject decoded images larger than this
   PHOTOS_MAX_RETURNED: 50,            // most photos to show in the slideshow
+
+  // Who receives the photo-approval email. Because the photos live in the Drive
+  // of whoever deployed this script, only that person can approve them, so
+  // these emails go to just that person by default. (RSVP, memory, and contact
+  // emails still go to everyone in NOTIFY_EMAILS.)
+  PHOTOS_APPROVER_EMAILS: ["joshe1315@gmail.com"],
 };
 
 
@@ -182,6 +188,14 @@ function doGet(e) {
     }
     if (params.action === "photos") {
       return jsonResponse(handleListPhotos());
+    }
+    // One-click photo moderation from the approval email. These return a small
+    // web page (not JSON) so the family sees a friendly confirmation.
+    if (params.action === "approvePhoto") {
+      return moderatePhotoFromLink(params.id, params.t, "Yes");
+    }
+    if (params.action === "declinePhoto") {
+      return moderatePhotoFromLink(params.id, params.t, "Declined");
     }
     // A plain visit confirms the service is alive without leaking anything.
     return jsonResponse({ ok: true, service: "Celebration of Life RSVP", message: "Service is running." });
@@ -706,7 +720,7 @@ function handlePhoto(data) {
     // Column order matches PHOTOS_HEADERS. Approved starts as No.
     sheet.appendRow([formatTimestamp(new Date()), name, caption, fileId, viewUrl, "No", photoId]);
 
-    try { sendPhotoNotification(name, caption); } catch (notifyErr) {}
+    try { sendPhotoNotification(name, caption, photoId, viewUrl); } catch (notifyErr) {}
 
     return {
       ok: true,
@@ -747,23 +761,127 @@ function handleListPhotos() {
   return { ok: true, photos: list };
 }
 
-/** Email the family when a new photo is posted, so they can review it. */
-function sendPhotoNotification(name, caption) {
-  var recipients = (CONFIG.NOTIFY_EMAILS || []).filter(function (e) {
+/**
+ * Email the photo approver when a new photo is posted. The email includes a
+ * preview and one-click Approve and Decline buttons. Recipients come from
+ * PHOTOS_APPROVER_EMAILS (defaults to the person who can actually approve).
+ */
+function sendPhotoNotification(name, caption, photoId, viewUrl) {
+  var list = (CONFIG.PHOTOS_APPROVER_EMAILS && CONFIG.PHOTOS_APPROVER_EMAILS.length)
+    ? CONFIG.PHOTOS_APPROVER_EMAILS : CONFIG.NOTIFY_EMAILS;
+  var recipients = (list || []).filter(function (e) {
     return e && looksLikeEmail(String(e).trim());
   });
   if (!recipients.length) return;
-  var lines = [
-    name + " uploaded a photo" + (caption ? ": " + caption : ".") ,
-    "",
-    "To show it on the website, open the Photos tab in your spreadsheet and",
-    "change this photo's Approved cell to Yes.",
-  ];
+
+  var base = "";
+  try { base = ScriptApp.getService().getUrl(); } catch (e) { base = ""; }
+  var token = approvalToken(photoId);
+  var approveUrl = base + "?action=approvePhoto&id=" + encodeURIComponent(photoId) + "&t=" + token;
+  var declineUrl = base + "?action=declinePhoto&id=" + encodeURIComponent(photoId) + "&t=" + token;
+
+  var safeName = escapeHtml(name);
+  var safeCaption = caption ? escapeHtml(caption) : "";
+
+  var html =
+    '<div style="font-family:Georgia,serif;color:#34302a;max-width:480px;margin:0 auto">' +
+      '<h2 style="color:#2c4760;font-size:18px">New photo from ' + safeName + '</h2>' +
+      (safeCaption ? '<p style="color:#6a6357">Caption: ' + safeCaption + '</p>' : '') +
+      '<p><img src="' + viewUrl + '" alt="Submitted photo" style="max-width:100%;border-radius:8px;border:1px solid #e4dac6"></p>' +
+      '<p>Approve it to show it in the slideshow on the website, or decline to hide it.</p>' +
+      '<p>' +
+        '<a href="' + approveUrl + '" style="display:inline-block;background:#2f4a63;color:#fff;text-decoration:none;padding:10px 20px;border-radius:6px;margin-right:8px">Approve photo</a>' +
+        '<a href="' + declineUrl + '" style="display:inline-block;background:#f4efe4;color:#7a3b50;text-decoration:none;padding:10px 20px;border-radius:6px;border:1px solid #e6c2cd">Decline</a>' +
+      '</p>' +
+      '<p style="font-size:12px;color:#9a9286">You can also open the Photos tab in your spreadsheet and set Approved to Yes.</p>' +
+    '</div>';
+
+  var text =
+    safeName + " uploaded a photo" + (caption ? ": " + caption : ".") + "\n\n" +
+    "Approve: " + approveUrl + "\n" +
+    "Decline: " + declineUrl + "\n\n" +
+    "Or open the Photos tab in your spreadsheet and set Approved to Yes.";
+
   MailApp.sendEmail({
     to: recipients.join(","),
-    subject: CONFIG.EVENT_LABEL + " photo from " + name + " (needs approval)",
-    body: lines.join("\n"),
+    subject: CONFIG.EVENT_LABEL + " photo from " + name + " (needs your approval)",
+    body: text,
+    htmlBody: html,
   });
+}
+
+/* ---------------------------------------------------------------------------
+ * One-click photo moderation from the approval email
+ * -------------------------------------------------------------------------*/
+
+/** Read or create a private secret used to sign approval links. */
+function getApprovalSecret() {
+  var props = PropertiesService.getScriptProperties();
+  var secret = props.getProperty("APPROVAL_SECRET");
+  if (!secret) {
+    secret = Utilities.getUuid() + Utilities.getUuid();
+    props.setProperty("APPROVAL_SECRET", secret);
+  }
+  return secret;
+}
+
+/** A short, unguessable token for a given photo id. */
+function approvalToken(photoId) {
+  var sig = Utilities.computeHmacSha256Signature(String(photoId), getApprovalSecret());
+  return Utilities.base64EncodeWebSafe(sig).replace(/[^A-Za-z0-9]/g, "").substring(0, 18);
+}
+
+/** Set a photo's Approved cell (and trash the file when declined). */
+function moderatePhotoFromLink(rawId, rawToken, newValue) {
+  var id = String(rawId || "").trim();
+  var token = String(rawToken || "").trim();
+  if (!id || token !== approvalToken(id)) {
+    return htmlPage("Link not valid", "This approval link is not valid. Please use the most recent email, or open the Photos tab in your spreadsheet.");
+  }
+
+  var sheet = getSheet(CONFIG.PHOTOS_SHEET);
+  var values = sheet.getDataRange().getValues();
+  var col = headerIndexMap(values[0]);
+  var idCol = col["Photo ID"], approvedCol = col["Approved"], fileCol = col["File ID"];
+  if (idCol == null || approvedCol == null) {
+    return htmlPage("Something went wrong", "The Photos tab could not be read.");
+  }
+
+  for (var r = 1; r < values.length; r++) {
+    if (String(values[r][idCol]).trim() === id) {
+      sheet.getRange(r + 1, approvedCol + 1).setValue(newValue);
+      if (newValue === "Declined" && fileCol != null) {
+        try { DriveApp.getFileById(String(values[r][fileCol])).setTrashed(true); } catch (e) {}
+      }
+      if (newValue === "Yes") {
+        return htmlPage("Photo approved", "Thank you. The photo now appears in the slideshow on the website.");
+      }
+      return htmlPage("Photo declined", "The photo has been hidden and will not appear on the website.");
+    }
+  }
+  return htmlPage("Photo not found", "We could not find that photo. It may have already been removed.");
+}
+
+/** A small, friendly confirmation page in the site's style. */
+function htmlPage(title, message) {
+  var t = escapeHtml(title), m = escapeHtml(message);
+  var html =
+    '<!doctype html><html lang="en"><head><meta charset="utf-8">' +
+    '<meta name="viewport" content="width=device-width,initial-scale=1">' +
+    '<style>body{font-family:Georgia,serif;background:#f4efe4;color:#34302a;margin:0;' +
+    'min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}' +
+    '.card{background:#fffdf8;border:1px solid #e4dac6;border-radius:10px;' +
+    'box-shadow:0 10px 30px rgba(44,71,96,.1);padding:32px;max-width:420px;text-align:center}' +
+    'h1{color:#2c4760;font-size:1.4rem;margin:0 0 12px}p{color:#6a6357;margin:0;line-height:1.6}</style>' +
+    '</head><body><div class="card"><h1>' + t + '</h1><p>' + m + '</p></div></body></html>';
+  return HtmlService.createHtmlOutput(html).setTitle(title);
+}
+
+/** Escape text for safe inclusion in HTML. */
+function escapeHtml(value) {
+  return String(value == null ? "" : value)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
 
 
