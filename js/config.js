@@ -239,7 +239,7 @@ const CONFIG = {
     // Example link: https://www.youtube.com/watch?v=XXXXXXXXXXX
     // Example ID:   XXXXXXXXXXX
     // Leave blank to hide the player until you add a song.
-    youTube: "", // PLACEHOLDER: paste the YouTube link to your chosen song
+    youTube: "https://youtu.be/M8AeV8Jbx6M",
   },
 
 
