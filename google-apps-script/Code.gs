@@ -720,7 +720,7 @@ function handlePhoto(data) {
     // Column order matches PHOTOS_HEADERS. Approved starts as No.
     sheet.appendRow([formatTimestamp(new Date()), name, caption, fileId, viewUrl, "No", photoId]);
 
-    try { sendPhotoNotification(name, caption, photoId, viewUrl); } catch (notifyErr) {}
+    try { sendPhotoNotification(name, caption, photoId, viewUrl, fileId); } catch (notifyErr) {}
 
     return {
       ok: true,
@@ -766,7 +766,7 @@ function handleListPhotos() {
  * preview and one-click Approve and Decline buttons. Recipients come from
  * PHOTOS_APPROVER_EMAILS (defaults to the person who can actually approve).
  */
-function sendPhotoNotification(name, caption, photoId, viewUrl) {
+function sendPhotoNotification(name, caption, photoId, viewUrl, fileId) {
   var list = (CONFIG.PHOTOS_APPROVER_EMAILS && CONFIG.PHOTOS_APPROVER_EMAILS.length)
     ? CONFIG.PHOTOS_APPROVER_EMAILS : CONFIG.NOTIFY_EMAILS;
   var recipients = (list || []).filter(function (e) {
@@ -779,6 +779,8 @@ function sendPhotoNotification(name, caption, photoId, viewUrl) {
   var token = approvalToken(photoId);
   var approveUrl = base + "?action=approvePhoto&id=" + encodeURIComponent(photoId) + "&t=" + token;
   var declineUrl = base + "?action=declinePhoto&id=" + encodeURIComponent(photoId) + "&t=" + token;
+  // A reliable link to open the full photo in Google Drive.
+  var openUrl = fileId ? ("https://drive.google.com/file/d/" + fileId + "/view") : viewUrl;
 
   var safeName = escapeHtml(name);
   var safeCaption = caption ? escapeHtml(caption) : "";
@@ -787,7 +789,8 @@ function sendPhotoNotification(name, caption, photoId, viewUrl) {
     '<div style="font-family:Georgia,serif;color:#34302a;max-width:480px;margin:0 auto">' +
       '<h2 style="color:#2c4760;font-size:18px">New photo from ' + safeName + '</h2>' +
       (safeCaption ? '<p style="color:#6a6357">Caption: ' + safeCaption + '</p>' : '') +
-      '<p><img src="' + viewUrl + '" alt="Submitted photo" style="max-width:100%;border-radius:8px;border:1px solid #e4dac6"></p>' +
+      '<p><a href="' + openUrl + '"><img src="' + viewUrl + '" alt="Submitted photo" style="max-width:100%;border-radius:8px;border:1px solid #e4dac6"></a></p>' +
+      '<p style="font-size:13px"><a href="' + openUrl + '" style="color:#2f4a63">View the full photo</a> (in case the preview above does not load)</p>' +
       '<p>Approve it to show it in the slideshow on the website, or decline to hide it.</p>' +
       '<p>' +
         '<a href="' + approveUrl + '" style="display:inline-block;background:#2f4a63;color:#fff;text-decoration:none;padding:10px 20px;border-radius:6px;margin-right:8px">Approve photo</a>' +
@@ -798,6 +801,7 @@ function sendPhotoNotification(name, caption, photoId, viewUrl) {
 
   var text =
     safeName + " uploaded a photo" + (caption ? ": " + caption : ".") + "\n\n" +
+    "View the photo: " + openUrl + "\n\n" +
     "Approve: " + approveUrl + "\n" +
     "Decline: " + declineUrl + "\n\n" +
     "Or open the Photos tab in your spreadsheet and set Approved to Yes.";
