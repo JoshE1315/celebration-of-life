@@ -44,9 +44,11 @@ analytics scripts. The page even asks search engines not to index it.
 - **Light input cleaning on both sides.** The browser trims input and removes
   angle brackets; the backend cleans again and caps lengths. Never trust the
   browser alone, which is why the backend repeats the checks.
-- **Memories are not posted publicly.** Any message a guest shares is stored
-  privately for the family. Nothing a guest writes appears automatically on the
-  public page.
+- **Public vs private is clearly separated.** Memories posted to the Memory
+  Wall appear publicly on the page (immediately, unless you turn approval back
+  on in the backend). Uploaded photos appear publicly only after the family
+  approves them. Anything sent through Contact the Family, or the message box on
+  the RSVP form, goes only to the family and is never posted publicly.
 - **No-referrer and no-index hints.** The page sends a no-referrer policy and
   asks crawlers not to index it. These are courtesy measures, not guarantees.
 

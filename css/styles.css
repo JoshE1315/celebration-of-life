@@ -267,6 +267,22 @@ img { max-width: 100%; height: auto; display: block; }
 .btn--block { width: 100%; }
 .btn[disabled] { opacity: 0.6; cursor: not-allowed; }
 
+/* View Map: light pink background */
+.btn--map {
+  background: #f7e2e9;
+  color: #7a3b50;
+  border-color: #e6c2cd;
+}
+.btn--map:hover { background: #f2d3dd; color: #7a3b50; }
+
+/* Contact the Family (in Event Details): light blue with a dark blue border */
+.btn--contact {
+  background: #e2edfb;
+  color: #1f3a6b;
+  border-color: #1f3a6b;
+}
+.btn--contact:hover { background: #d3e3f8; color: #1f3a6b; }
+
 .link-button {
   background: none;
   border: none;
