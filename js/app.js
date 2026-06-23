@@ -304,6 +304,9 @@
 
     // Initialize the RSVP form behavior.
     if (window.RsvpFeature) window.RsvpFeature.init();
+
+    // Initialize the memory wall.
+    if (window.MemoriesFeature) window.MemoriesFeature.init();
   }
 
   if (document.readyState === "loading") {

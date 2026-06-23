@@ -42,6 +42,7 @@
           <li><a href="#details">Details</a></li>
           <li><a href="#schedule">Schedule</a></li>
           <li><a href="#rsvp">RSVP</a></li>
+          <li><a href="#memories">Memories</a></li>
           <li><a href="#faq">FAQ</a></li>
         </ul>
       </nav>
@@ -106,6 +107,7 @@
             <div class="tribute__family">
               <h3 data-config="tribute.familyMessageHeading">A Message From the Family</h3>
               <p data-config="tribute.familyMessage"></p>
+              <p class="tribute__signoff" data-config="tribute.familySignature"></p>
             </div>
           </div>
 
@@ -363,6 +365,48 @@
       </div>
     </section>
 
+    <!-- ===================== MEMORY WALL ===================== -->
+    <section id="memories" class="section section--memories" aria-labelledby="memories-heading" hidden>
+      <div class="container container--narrow">
+        <h2 id="memories-heading" class="section__heading" data-config="memoryWall.heading">Share a Memory</h2>
+        <p class="section__intro" data-config="memoryWall.intro"></p>
+
+        <!-- Submission form -->
+        <div class="form-status" data-memory-status role="status" aria-live="polite"></div>
+
+        <form id="memory-form" class="memory-form" novalidate>
+          <div class="field">
+            <label for="memoryName">Your name <span class="req" aria-hidden="true">*</span></label>
+            <input type="text" id="memoryName" name="memoryName" autocomplete="name"
+                   aria-describedby="memoryName-error" required />
+            <p class="field__error" id="memoryName-error" data-error-for="memoryName" aria-live="polite"></p>
+          </div>
+
+          <div class="field">
+            <label for="memoryText">Your memory or message <span class="req" aria-hidden="true">*</span></label>
+            <textarea id="memoryText" name="memoryText" rows="4"
+                      aria-describedby="memoryText-help memoryText-count memoryText-error"></textarea>
+            <p class="field__help" id="memoryText-help">
+              Share a story, a memory, or a few kind words. Please be respectful.
+            </p>
+            <p class="field__count" id="memoryText-count" data-memory-count aria-live="polite"></p>
+            <p class="field__error" id="memoryText-error" data-error-for="memoryText" aria-live="polite"></p>
+          </div>
+
+          <button class="btn btn--primary" type="submit" data-memory-submit>
+            <span data-memory-submit-label>Post Memory</span>
+            <span class="spinner" data-memory-spinner hidden aria-hidden="true"></span>
+          </button>
+        </form>
+
+        <!-- Approved memories appear here -->
+        <h3 class="memory-wall__heading">Memories Shared</h3>
+        <div class="memory-wall" data-memory-list aria-live="polite">
+          <p class="memory-wall__empty" data-memory-empty>Loading memories...</p>
+        </div>
+      </div>
+    </section>
+
     <!-- ===================== FAQ ===================== -->
     <section id="faq" class="section section--faq" aria-labelledby="faq-heading">
       <div class="container container--narrow">
@@ -445,6 +489,7 @@
   <script src="js/config.js"></script>
   <script src="js/calendar.js"></script>
   <script src="js/rsvp.js"></script>
+  <script src="js/memories.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

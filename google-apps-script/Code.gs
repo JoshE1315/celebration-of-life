@@ -79,6 +79,19 @@ var CONFIG = {
   OPEN_HOUSEHOLD_LABEL: "Guest of the Ehlin Family",
   OPEN_MAX_GUESTS: 6,
   OPEN_CHILDREN_ALLOWED: true,
+
+  // ---------------------------------------------------------------------------
+  // MEMORY WALL  -  public messages from friends and family
+  // Visitors can post a short memory. To prevent spam or anything unkind from
+  // showing automatically, posts are hidden until you approve them.
+  // - true  = a memory shows on the site only after you set its Approved cell
+  //           to Yes in the Memories tab. (Recommended.)
+  // - false = memories appear on the site immediately. Use only if you are
+  //           confident the audience is small and trusted.
+  // ---------------------------------------------------------------------------
+  MEMORIES_SHEET: "Memories",
+  MEMORIES_REQUIRE_APPROVAL: true,
+  MEMORIES_MAX_LENGTH: 2000,
 };
 
 
@@ -101,6 +114,10 @@ var RESPONSE_HEADERS = [
   "Number Attending", "Attendee Names", "Children's Names", "Dietary Needs",
   "Accessibility Needs", "Guest Message or Memory", "Submission Source",
   "Last Updated", "Response ID",
+];
+
+var MEMORIES_HEADERS = [
+  "Timestamp", "Name", "Memory", "Approved", "Memory ID",
 ];
 
 var SETTINGS_DEFAULTS = [
@@ -133,6 +150,9 @@ function doGet(e) {
     if (params.action === "lookup") {
       return jsonResponse(handleLookup(params.code));
     }
+    if (params.action === "memories") {
+      return jsonResponse(handleListMemories());
+    }
     // A plain visit confirms the service is alive without leaking anything.
     return jsonResponse({ ok: true, service: "Celebration of Life RSVP", message: "Service is running." });
   } catch (err) {
@@ -154,6 +174,10 @@ function doPost(e) {
 
     if (body.action === "lookup") {
       return jsonResponse(handleLookup(body.code));
+    }
+
+    if (body.action === "memory") {
+      return jsonResponse(handleMemory(body));
     }
 
     return jsonResponse(handleRsvp(body));
@@ -406,6 +430,109 @@ function sendRsvpNotification(record, totals, wasUpdate) {
 }
 
 
+/* ===========================================================================
+ * MEMORY WALL
+ * ======================================================================== */
+
+/**
+ * Save a memory submitted by a visitor. Hidden until approved (unless approval
+ * is turned off in CONFIG). Notifies the family so they can review it.
+ */
+function handleMemory(data) {
+  data = data || {};
+  var name = sanitizeText(data.name, 80);
+  var memory = sanitizeText(data.memory, toPositiveInt(CONFIG.MEMORIES_MAX_LENGTH, 2000));
+
+  if (!name) return { ok: false, message: "Please add your name." };
+  if (!memory) return { ok: false, message: "Please write a short memory." };
+
+  var lock = LockService.getScriptLock();
+  try { lock.waitLock(10000); } catch (e) {
+    return { ok: false, message: "The server is busy. Please try again in a moment." };
+  }
+
+  try {
+    var sheet = getSheet(CONFIG.MEMORIES_SHEET);
+    ensureHeaders(sheet, MEMORIES_HEADERS);
+
+    var requireApproval = CONFIG.MEMORIES_REQUIRE_APPROVAL !== false;
+    var memoryId = "MEM-" + Utilities.getUuid().substring(0, 8).toUpperCase();
+    var approved = requireApproval ? "No" : "Yes";
+
+    // Column order matches MEMORIES_HEADERS.
+    sheet.appendRow([formatTimestamp(new Date()), name, memory, approved, memoryId]);
+
+    try { sendMemoryNotification(name, memory, requireApproval); } catch (notifyErr) {}
+
+    return {
+      ok: true,
+      approved: !requireApproval,
+      message: requireApproval
+        ? "Thank you. Your memory has been sent to the family and will appear once approved."
+        : "Thank you for sharing your memory.",
+    };
+  } catch (err) {
+    return { ok: false, message: "We could not save your memory. Please try again." };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/**
+ * Return approved memories for public display: only the name, the memory text,
+ * and the date. Never returns unapproved entries or any other column.
+ */
+function handleListMemories() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(CONFIG.MEMORIES_SHEET);
+  if (!sheet) return { ok: true, memories: [] };
+
+  var values = sheet.getDataRange().getValues();
+  if (values.length < 2) return { ok: true, memories: [] };
+
+  var col = headerIndexMap(values[0]);
+  var list = [];
+  for (var r = 1; r < values.length; r++) {
+    if (!isTruthy(values[r][col["Approved"]])) continue;
+    var memory = String(values[r][col["Memory"]] || "").trim();
+    if (!memory) continue;
+    list.push({
+      name: String(values[r][col["Name"]] || "A friend"),
+      memory: memory,
+      date: String(values[r][col["Timestamp"]] || ""),
+    });
+  }
+  // Newest first.
+  list.reverse();
+  return { ok: true, memories: list };
+}
+
+/** Email the family when a new memory is posted, so they can review it. */
+function sendMemoryNotification(name, memory, requireApproval) {
+  var recipients = (CONFIG.NOTIFY_EMAILS || []).filter(function (e) {
+    return e && looksLikeEmail(String(e).trim());
+  });
+  if (!recipients.length) return;
+
+  var subject = CONFIG.EVENT_LABEL + " memory from " + name +
+    (requireApproval ? " (needs approval)" : "");
+  var lines = [
+    name + " shared a memory:",
+    "",
+    memory,
+    "",
+    "-----------------------------------------",
+  ];
+  if (requireApproval) {
+    lines.push("To show this on the website, open the Memories tab in your");
+    lines.push("spreadsheet and change this person's Approved cell to Yes.");
+  } else {
+    lines.push("This memory is now visible on the website.");
+  }
+  MailApp.sendEmail({ to: recipients.join(","), subject: subject, body: lines.join("\n") });
+}
+
+
 /**
  * Insert a new response row, or update the existing one for the same
  * invitation ID. Preserves the original Submission Timestamp and refreshes
@@ -654,6 +781,10 @@ function setupSheet() {
   // RSVP Responses
   var resp = getSheet(CONFIG.RESPONSE_SHEET);
   ensureHeaders(resp, RESPONSE_HEADERS);
+
+  // Memories (public memory wall)
+  var memories = getSheet(CONFIG.MEMORIES_SHEET);
+  ensureHeaders(memories, MEMORIES_HEADERS);
 
   // Settings
   var settings = getSheet(CONFIG.SETTINGS_SHEET);

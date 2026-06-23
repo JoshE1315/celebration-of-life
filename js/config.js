@@ -72,8 +72,8 @@ const CONFIG = {
     // Portrait photo for the hero section.
     // Put your image file inside assets/images/ and update the path below.
     // Leave portrait as "" to show a tasteful placeholder instead.
-    portrait: "", // PLACEHOLDER: e.g. "assets/images/portrait.jpg"
-    portraitAlt: "Portrait photograph of your loved one", // describe the photo for screen readers
+    portrait: "assets/images/portrait.jpg",
+    portraitAlt: "Stanley Irving Ehlin in a tuxedo, smiling and speaking into a microphone", // describe the photo for screen readers
   },
 
 
@@ -87,23 +87,34 @@ const CONFIG = {
     // The biography or tribute. You may use several short paragraphs.
     // Each item in this list becomes its own paragraph.
     paragraphs: [
-      "PLACEHOLDER: Write a few sentences about your loved one here. Share " +
-        "what made them special, the things they loved, and the people and " +
-        "places that mattered most to them.",
-      "PLACEHOLDER: You can add a second paragraph with more memories, " +
-        "accomplishments, or the values they lived by.",
+      "Stanley Irving Ehlin lived a life full of love, laughter, and the kind " +
+        "of warmth that stayed with you long after you left his side. He had a " +
+        "gift for making the people around him feel welcome, valued, and seen.",
+      "He gave freely of his time, his humor, and his heart, and he found his " +
+        "greatest joy in the people he loved. The memories he leaves behind are " +
+        "many, and each one is a reminder of how deeply he cared and how fully " +
+        "he lived.",
+      "Words can never quite capture all that he meant to us. So we hold close " +
+        "the moments we shared, the lessons he taught, and the love that remains. " +
+        "He will be carried in our hearts always.",
     ],
 
     // An optional quotation. Leave quote as "" to hide this block.
-    quote: "PLACEHOLDER: A favorite saying, verse, or quotation goes here.",
-    quoteAttribution: "", // optional, e.g. "A favorite family saying"
+    quote: "",
+    quoteAttribution: "",
 
     // An editable message from the family.
     familyMessageHeading: "A Message From the Family",
     familyMessage:
-      "PLACEHOLDER: Thank you for being part of our loved one's life. Your " +
-      "presence, your kindness, and your shared memories mean more to us " +
-      "than words can say.",
+      "To our family and friends, thank you for the love and kindness you " +
+      "showed our dad throughout his life. Your presence at his Celebration of " +
+      "Life means the world to us. We hope this day is filled not with sorrow " +
+      "alone, but with the warmth, the stories, and the laughter he gave so " +
+      "freely. It brings us comfort to remember him together, surrounded by the " +
+      "people he cared about.",
+
+    // The closing sign-off, shown on its own line beneath the family message.
+    familySignature: "With love and gratitude, Shane, Josh and Amie",
 
     // Optional tribute photo. Leave as "" to hide.
     photo: "", // PLACEHOLDER: e.g. "assets/images/tribute.jpg"
@@ -171,6 +182,28 @@ const CONFIG = {
     { time: "TBD", title: "Closing", description: "A few closing words to bring our gathering together." },
     { time: "TBD", title: "Reception and Refreshments", description: "Please stay to share stories, food, and fellowship." },
   ],
+
+
+  /* ---------------------------------------------------------------------------
+   * 5b. MEMORY WALL  -  public messages from friends and family
+   * -------------------------------------------------------------------------*/
+
+  memoryWall: {
+    // Turn the whole section on or off.
+    enabled: true,
+
+    heading: "Share a Memory",
+    intro:
+      "We would love to hear from you. Share a memory, a story, or a few kind " +
+      "words about Stanley below. Your message will appear here for everyone " +
+      "to read once the family has had a chance to see it.",
+
+    // The label on the submit button.
+    submitLabel: "Post Memory",
+
+    // The most characters a memory may contain (must match the backend value).
+    maxLength: 2000,
+  },
 
 
   /* ---------------------------------------------------------------------------

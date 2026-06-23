@@ -21,6 +21,12 @@ data/*-private.txt
 # These must never be published to the public website.
 docs/Book.xlsx
 *.xlsx
+docs/*.csv
+
+# Working images kept in docs/ (the published photo lives in assets/images/).
+docs/*.jpg
+docs/*.jpeg
+docs/*.png
 
 # Local notes
 notes.local.md
