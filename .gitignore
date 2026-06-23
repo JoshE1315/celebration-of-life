@@ -23,10 +23,13 @@ docs/Book.xlsx
 *.xlsx
 docs/*.csv
 
-# Working images kept in docs/ (the published photo lives in assets/images/).
+# Working media kept in docs/ (published copies live in assets/).
 docs/*.jpg
 docs/*.jpeg
 docs/*.png
+docs/*.mp3
+docs/*.m4a
+docs/*.wav
 
 # Local notes
 notes.local.md

@@ -249,27 +249,9 @@ const CONFIG = {
     // start, for example 70.
     startVolume: 100,
 
-    // MOST RELIABLE OPTION: a music file hosted in your own project.
-    // Put an MP3 in assets/audio/ and set the path here, for example
-    // "assets/audio/amazing-grace.mp3". When this is set, it is used instead of
-    // YouTube and is never blocked by networks or embedding rules.
-    audioFile: "", // PLACEHOLDER: e.g. "assets/audio/amazing-grace.mp3"
-
-    // YouTube song, used only when audioFile above is empty.
-    // This is the same Amazing Grace recording (Royal Scots Dragoon Guards),
-    // from an upload that allows playing on other websites.
-    youTube: "OO5y2O_hv3I",
-
-    // Backup versions. If the song above will not play on other websites, the
-    // player automatically tries these in order until one works. All are
-    // Amazing Grace on bagpipes. You may reorder or replace them.
-    alternates: [
-      "euWfTiYwRB0", // Scottish Bagpipes - Amazing Grace
-      "OJi-uKOlLV4", // Amazing Grace Bagpipes, Barcelona Pipe Band
-      "UUZHTE1jMXg", // Memorial Day (Amazing Grace Bagpipes)
-      "lpZiPZwwXhM", // Amazing Grace, Bagpipe Master
-      "M8AeV8Jbx6M", // the original upload you chose (last resort)
-    ],
+    // The song is a music file hosted in your own project. To change it, put a
+    // new MP3 in assets/audio/ and update this path.
+    audioFile: "assets/audio/amazing-grace.mp3",
   },
 
 
