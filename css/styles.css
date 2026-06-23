@@ -856,7 +856,11 @@ img { max-width: 100%; height: auto; display: block; }
  * -------------------------------------------------------------------------*/
 @media (max-width: 860px) {
   .hero__inner { grid-template-columns: 1fr; text-align: center; }
-  .hero__media { max-width: 22rem; margin-inline: auto; order: -1; }
+  /* Use a definite width (not just max-width) so the photo box keeps its size
+     on phones. With auto side margins, a max-width-only item shrinks to its
+     contents, and the slideshow's absolutely-positioned layers have no width,
+     which collapsed the photo to nothing. */
+  .hero__media { width: 22rem; max-width: 100%; margin-inline: auto; order: -1; }
   .hero__intro { margin-inline: auto; }
   .hero__actions { justify-content: center; }
   .tribute__grid { grid-template-columns: 1fr; }

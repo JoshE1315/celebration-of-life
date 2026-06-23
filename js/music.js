@@ -64,10 +64,18 @@
   // The first time the visitor interacts with the page, start the song.
   var interactionEvents = ["pointerdown", "touchstart", "keydown", "scroll", "click"];
   function onFirstInteraction() {
-    if (unlocked) return;
-    unlocked = true;
-    removeInteractionListeners();
-    if (music.autoplay !== false) audio.play().catch(function () {});
+    if (unlocked || music.autoplay === false) return;
+    var p = audio.play();
+    if (p && p.then) {
+      // Only stop listening once playback actually starts. If the first tap
+      // happens before the file has buffered (common on phones), the next
+      // interaction tries again.
+      p.then(function () { unlocked = true; removeInteractionListeners(); })
+       .catch(function () { /* keep listening and retry on next interaction */ });
+    } else {
+      unlocked = true;
+      removeInteractionListeners();
+    }
   }
   function addInteractionListeners() {
     interactionEvents.forEach(function (ev) {
