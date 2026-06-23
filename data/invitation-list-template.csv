@@ -1,0 +1,5 @@
+Invitation ID,Household or Group Name,Primary Contact Name,Invited Guest Names,Maximum Guests,Children Allowed,Email Address,Mobile Number,Preferred Delivery Method,Invitation Sent,Date Sent,Current RSVP Status,Confirmed Guest Count,Follow-Up Needed,Follow-Up Date,Organizer Notes,Active
+COL-001,Sample Family One,Sample Contact One,"Sample Adult A, Sample Adult B",4,Yes,sample-one@example.com,(555) 555-0101,Email,Yes,2026-06-01,,,No,,EXAMPLE ROW - replace with a real household,Yes
+COL-002,Sample Guest Two,Sample Contact Two,Sample Adult C,1,No,sample-two@example.com,(555) 555-0102,Text,Yes,2026-06-01,,,No,,EXAMPLE ROW - replace with a real household,Yes
+COL-003,Example Household Three,Example Contact Three,"Example Adult D, Example Adult E",6,Yes,sample-three@example.com,(555) 555-0103,Printed,No,,,,No,,EXAMPLE ROW - replace with a real household,Yes
+COL-004,Inactive Example Four,Example Contact Four,Example Adult F,2,No,sample-four@example.com,(555) 555-0104,Email,No,,,,No,,EXAMPLE of an inactive invitation,No

@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- PLACEHOLDER: update the title and description with the name once known. -->
+  <title>Celebration of Life</title>
+  <meta name="description" content="An invitation to gather with family and friends for a Celebration of Life." />
+
+  <!-- Do not let search engines or social previews surface private details.
+       The page is public on GitHub Pages, but we still ask crawlers to be gentle. -->
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="referrer" content="no-referrer" />
+
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <!-- Skip link for keyboard and screen reader users -->
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <!-- ===================== HEADER / NAVIGATION ===================== -->
+  <header class="site-header">
+    <div class="container site-header__inner">
+      <a class="site-header__brand" href="#hero">
+        <span data-config="event.name">Celebration of Life</span>
+      </a>
+
+      <button
+        class="nav-toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="primary-nav"
+      >
+        <span class="nav-toggle__bar" aria-hidden="true"></span>
+        <span class="visually-hidden">Toggle navigation menu</span>
+      </button>
+
+      <nav id="primary-nav" class="site-nav" aria-label="Primary">
+        <ul class="site-nav__list">
+          <li><a href="#tribute">Tribute</a></li>
+          <li><a href="#details">Details</a></li>
+          <li><a href="#schedule">Schedule</a></li>
+          <li><a href="#rsvp">RSVP</a></li>
+          <li><a href="#faq">FAQ</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+
+    <!-- ===================== HERO ===================== -->
+    <section id="hero" class="hero" aria-labelledby="hero-name">
+      <div class="container hero__inner">
+        <div class="hero__media">
+          <!-- Portrait is filled in by app.js from config. A placeholder shows
+               if no portrait is set. Alt text comes from config. -->
+          <figure class="portrait" data-portrait-figure>
+            <div class="portrait__placeholder" data-portrait-placeholder aria-hidden="true">
+              <span>Photograph</span>
+            </div>
+          </figure>
+        </div>
+
+        <div class="hero__text">
+          <p class="hero__eyebrow" data-config="deceased.eyebrow">Celebrating the Life of</p>
+          <h1 id="hero-name" class="hero__name" data-config="deceased.fullName">Full Name of Your Loved One</h1>
+          <p class="hero__lifespan" data-config="deceased.lifespan">Year of Birth to Year of Passing</p>
+
+          <p class="hero__meta">
+            <span data-config="event.date">August 22, 2026</span>
+            <span class="hero__meta-sep" aria-hidden="true">&middot;</span>
+            <span data-config-location>Ocean City, New Jersey</span>
+          </p>
+
+          <p class="hero__intro" data-config="deceased.introMessage">
+            Please join us as we gather with family and friends to remember,
+            honor, and celebrate a life that meant so much to so many.
+          </p>
+
+          <div class="hero__actions">
+            <a class="btn btn--primary" href="#rsvp">RSVP</a>
+            <a class="btn btn--secondary" href="#details">Event Details</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== TRIBUTE ===================== -->
+    <section id="tribute" class="section section--tribute" aria-labelledby="tribute-heading">
+      <div class="container">
+        <h2 id="tribute-heading" class="section__heading" data-config="tribute.heading">A Life Well Lived</h2>
+
+        <div class="tribute__grid">
+          <div class="tribute__body">
+            <div data-tribute-paragraphs>
+              <p>A short biography or tribute will appear here.</p>
+            </div>
+
+            <blockquote class="tribute__quote" data-tribute-quote hidden>
+              <p data-config="tribute.quote"></p>
+              <cite data-config="tribute.quoteAttribution"></cite>
+            </blockquote>
+
+            <div class="tribute__family">
+              <h3 data-config="tribute.familyMessageHeading">A Message From the Family</h3>
+              <p data-config="tribute.familyMessage"></p>
+            </div>
+          </div>
+
+          <figure class="tribute__photo" data-tribute-photo-figure hidden>
+            <img data-tribute-photo src="" alt="" />
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== EVENT DETAILS ===================== -->
+    <section id="details" class="section section--details" aria-labelledby="details-heading">
+      <div class="container">
+        <h2 id="details-heading" class="section__heading">Event Details</h2>
+
+        <!-- Announced automatically when time/venue are still TBD -->
+        <p class="notice" data-tbd-notice hidden>
+          <span data-config="event.tbdMessage">Time and venue details will be announced.</span>
+        </p>
+
+        <dl class="details__list">
+          <div class="details__item">
+            <dt>Date</dt>
+            <dd data-config="event.date">August 22, 2026</dd>
+          </div>
+          <div class="details__item">
+            <dt>Time</dt>
+            <dd data-detail-time>To be announced</dd>
+          </div>
+          <div class="details__item">
+            <dt>Venue</dt>
+            <dd data-detail-venue>To be announced</dd>
+          </div>
+          <div class="details__item">
+            <dt>Address</dt>
+            <dd data-detail-address>To be announced</dd>
+          </div>
+          <div class="details__item">
+            <dt>Parking</dt>
+            <dd data-config="event.parking"></dd>
+          </div>
+          <div class="details__item">
+            <dt>Dress Guidance</dt>
+            <dd data-config="event.dressCode"></dd>
+          </div>
+          <div class="details__item">
+            <dt>Accessibility</dt>
+            <dd data-config="event.accessibility"></dd>
+          </div>
+          <div class="details__item">
+            <dt>Reception</dt>
+            <dd data-config="event.reception"></dd>
+          </div>
+          <div class="details__item">
+            <dt>Contact</dt>
+            <dd data-detail-contact>The Family</dd>
+          </div>
+        </dl>
+
+        <div class="details__actions">
+          <button class="btn btn--secondary" type="button" data-add-to-calendar>
+            Add to Calendar
+          </button>
+          <a class="btn btn--ghost" data-map-link href="#" hidden>View Map</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== SCHEDULE ===================== -->
+    <section id="schedule" class="section section--schedule" aria-labelledby="schedule-heading">
+      <div class="container">
+        <h2 id="schedule-heading" class="section__heading">Order of the Day</h2>
+        <ol class="schedule" data-schedule-list>
+          <!-- Cards are rendered here by app.js from config.schedule -->
+        </ol>
+      </div>
+    </section>
+
+    <!-- ===================== RSVP ===================== -->
+    <section id="rsvp" class="section section--rsvp" aria-labelledby="rsvp-heading">
+      <div class="container container--narrow">
+        <h2 id="rsvp-heading" class="section__heading" data-config="rsvp.heading">Kindly Respond</h2>
+        <p class="section__intro" data-config="rsvp.intro"></p>
+        <p class="rsvp__deadline">
+          Please reply by <strong data-config="rsvp.deadlineDisplay">the deadline</strong>.
+        </p>
+
+        <!-- Banner that explains demo mode when the backend is not connected -->
+        <p class="notice notice--demo" data-demo-banner hidden>
+          Demonstration mode is on. Submissions are not sent anywhere yet.
+          See the setup documentation to connect the backend.
+        </p>
+
+        <!-- aria-live region announces success and error messages -->
+        <div class="form-status" data-form-status role="status" aria-live="polite"></div>
+
+        <form id="rsvp-form" class="rsvp-form" novalidate>
+
+          <!-- Invitation code lookup (shown when requireInvitationCode is true) -->
+          <fieldset class="rsvp-form__group" data-invite-group>
+            <legend>Your Invitation</legend>
+
+            <div class="field">
+              <label for="invitationCode">Invitation code <span class="req" aria-hidden="true">*</span></label>
+              <input
+                type="text"
+                id="invitationCode"
+                name="invitationCode"
+                autocomplete="off"
+                inputmode="text"
+                placeholder="For example, COL-001"
+                aria-describedby="invitationCode-help invitationCode-error"
+                required
+              />
+              <p class="field__help" id="invitationCode-help">
+                Find your code in your invitation. It looks like COL-001. If a
+                friend forwarded this to you, enter the code FRIEND.
+              </p>
+              <p class="field__error" id="invitationCode-error" data-error-for="invitationCode" aria-live="polite"></p>
+            </div>
+
+            <button class="btn btn--secondary" type="button" data-lookup-button>
+              Find my invitation
+            </button>
+
+            <!-- Filled in after a successful lookup -->
+            <div class="invite-summary" data-invite-summary hidden>
+              <p class="invite-summary__greeting" data-invite-greeting></p>
+              <p class="invite-summary__limit" data-invite-limit></p>
+            </div>
+          </fieldset>
+
+          <!-- The main RSVP fields. Hidden until lookup succeeds when a code is
+               required; shown immediately when codes are not required. -->
+          <div class="rsvp-form__main" data-rsvp-main hidden>
+
+            <input type="hidden" name="householdName" data-household-name value="" />
+
+            <div class="field">
+              <label for="primaryName">Your full name <span class="req" aria-hidden="true">*</span></label>
+              <input type="text" id="primaryName" name="primaryName" autocomplete="name"
+                     aria-describedby="primaryName-error" required />
+              <p class="field__error" id="primaryName-error" data-error-for="primaryName" aria-live="polite"></p>
+            </div>
+
+            <div class="field">
+              <label for="email">Email address <span class="req" aria-hidden="true">*</span></label>
+              <input type="email" id="email" name="email" autocomplete="email"
+                     aria-describedby="email-help email-error" required />
+              <p class="field__help" id="email-help">We use this only to contact you about the event.</p>
+              <p class="field__error" id="email-error" data-error-for="email" aria-live="polite"></p>
+            </div>
+
+            <div class="field">
+              <label for="phone">Mobile phone <span class="field__optional">(optional)</span></label>
+              <input type="tel" id="phone" name="phone" autocomplete="tel"
+                     inputmode="tel" aria-describedby="phone-error" />
+              <p class="field__error" id="phone-error" data-error-for="phone" aria-live="polite"></p>
+            </div>
+
+            <fieldset class="field field--radio" aria-describedby="status-error">
+              <legend>Will you attend? <span class="req" aria-hidden="true">*</span></legend>
+              <label class="radio">
+                <input type="radio" name="rsvpStatus" value="Attending" required />
+                <span>Joyfully attending</span>
+              </label>
+              <label class="radio">
+                <input type="radio" name="rsvpStatus" value="Not Attending" />
+                <span>Unable to attend</span>
+              </label>
+              <label class="radio" data-tentative-option>
+                <input type="radio" name="rsvpStatus" value="Tentative" />
+                <span>Tentative</span>
+              </label>
+              <p class="field__error" id="status-error" data-error-for="rsvpStatus" aria-live="polite"></p>
+            </fieldset>
+
+            <!-- These attendance fields are hidden when "Not Attending" is chosen -->
+            <div data-attendance-fields>
+              <div class="field">
+                <label for="numberAttending">Number attending <span class="req" aria-hidden="true">*</span></label>
+                <select id="numberAttending" name="numberAttending"
+                        aria-describedby="numberAttending-help numberAttending-error">
+                  <!-- Options are filled in by rsvp.js based on the invitation limit -->
+                </select>
+                <p class="field__help" id="numberAttending-help" data-attending-help>
+                  Include yourself in the count.
+                </p>
+                <p class="field__error" id="numberAttending-error" data-error-for="numberAttending" aria-live="polite"></p>
+              </div>
+
+              <div class="field">
+                <label for="attendeeNames">Names of everyone attending <span class="req" aria-hidden="true">*</span></label>
+                <textarea id="attendeeNames" name="attendeeNames" rows="3"
+                          placeholder="One name per line, or separated by commas"
+                          aria-describedby="attendeeNames-help attendeeNames-error"></textarea>
+                <p class="field__help" id="attendeeNames-help">Please list each adult guest, including yourself.</p>
+                <p class="field__error" id="attendeeNames-error" data-error-for="attendeeNames" aria-live="polite"></p>
+              </div>
+
+              <div class="field" data-children-field hidden>
+                <label for="childrenNames">Names of children attending <span class="field__optional">(optional)</span></label>
+                <textarea id="childrenNames" name="childrenNames" rows="2"
+                          placeholder="One name per line, or separated by commas"
+                          aria-describedby="childrenNames-help"></textarea>
+                <p class="field__help" id="childrenNames-help">Only if your invitation includes children.</p>
+              </div>
+
+              <div class="field">
+                <label for="dietary">Dietary needs <span class="field__optional">(optional)</span></label>
+                <input type="text" id="dietary" name="dietary"
+                       placeholder="For example, vegetarian or a nut allergy" />
+              </div>
+
+              <div class="field">
+                <label for="accessibility">Accessibility or accommodation needs <span class="field__optional">(optional)</span></label>
+                <input type="text" id="accessibility" name="accessibility"
+                       placeholder="For example, step-free access or seating near the front" />
+              </div>
+            </div>
+
+            <!-- Optional memory / message -->
+            <div class="field" data-memory-field>
+              <label for="message">A memory or message <span class="field__optional">(optional)</span></label>
+              <textarea id="message" name="message" rows="4"
+                        aria-describedby="message-help message-count"></textarea>
+              <p class="field__help" id="message-help">
+                Share a short memory if you wish. Messages may be shared privately
+                with the family and will not appear publicly on this website.
+              </p>
+              <p class="field__count" id="message-count" data-message-count aria-live="polite"></p>
+            </div>
+
+            <div class="field field--check">
+              <label class="check">
+                <input type="checkbox" id="consent" name="consent" required
+                       aria-describedby="consent-error" />
+                <span>I confirm the information above is correct. <span class="req" aria-hidden="true">*</span></span>
+              </label>
+              <p class="field__error" id="consent-error" data-error-for="consent" aria-live="polite"></p>
+            </div>
+
+            <button class="btn btn--primary btn--block" type="submit" data-submit-button>
+              <span data-submit-label>Send RSVP</span>
+              <span class="spinner" data-spinner hidden aria-hidden="true"></span>
+            </button>
+
+            <p class="rsvp-form__privacy">
+              By sending this form your response is stored in a private Google
+              Sheet controlled by the family. See the
+              <a href="#privacy-notice">privacy notice</a> for details.
+            </p>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ===================== FAQ ===================== -->
+    <section id="faq" class="section section--faq" aria-labelledby="faq-heading">
+      <div class="container container--narrow">
+        <h2 id="faq-heading" class="section__heading">Questions and Answers</h2>
+        <div class="faq" data-faq-list>
+          <!-- FAQ items rendered by app.js from config.faqs -->
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="site-footer">
+    <div class="container">
+      <p class="site-footer__closing" data-config="footer.closingLine">Held in loving memory.</p>
+
+      <p class="site-footer__contact" data-footer-contact></p>
+
+      <p>
+        <button class="link-button" type="button" data-privacy-toggle
+                aria-expanded="false" aria-controls="privacy-notice">
+          Privacy notice
+        </button>
+      </p>
+
+      <!-- Expandable privacy notice -->
+      <div id="privacy-notice" class="privacy-notice" hidden>
+        <h2>Privacy Notice</h2>
+        <p>
+          We want you to feel comfortable responding. Here is exactly what
+          happens with the information you share.
+        </p>
+        <h3>What we collect</h3>
+        <p>
+          Your name, your reply (attending, not attending, or tentative), the
+          number and names of those attending, and any optional details you
+          choose to add such as an email address, phone number, dietary needs,
+          accessibility needs, or a short message.
+        </p>
+        <h3>Why we collect it</h3>
+        <p>
+          We use it only to plan and communicate about this Celebration of Life.
+          For example, to arrange seating, food, and accessibility, and to reach
+          you if plans change.
+        </p>
+        <h3>Where it is stored</h3>
+        <p>
+          Your response is stored in a private Google Sheet that only the family
+          can open. The public web page is hosted on GitHub Pages. When you send
+          the form, Google processes the submission through Google Apps Script
+          and Google Sheets.
+        </p>
+        <h3>About memories and messages</h3>
+        <p>
+          Any memory or message you share may be read privately by the family.
+          It will not automatically be posted publicly on this website.
+        </p>
+        <h3>No advertising or tracking</h3>
+        <p>
+          This site uses no advertising and no tracking cookies. We do not sell
+          or share your information.
+        </p>
+        <h3>Corrections and deletion</h3>
+        <p>
+          You may ask the family to correct or delete your information at any
+          time. Please use the contact details above. You can also update your
+          own RSVP by submitting the form again with the same invitation code.
+        </p>
+      </div>
+
+      <p class="site-footer__updated">
+        Last updated: <span data-config="footer.lastUpdated">June 2026</span>
+      </p>
+    </div>
+  </footer>
+
+  <!-- Scripts. config.js must load first. All scripts are plain JavaScript
+       with no external dependencies. The page above is fully readable even if
+       these scripts fail to load. -->
+  <script src="js/config.js"></script>
+  <script src="js/calendar.js"></script>
+  <script src="js/rsvp.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+# Operating system files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor files
+.vscode/
+*.swp
+*~
+
+# Keep the website public and the private data out of the repository.
+# IMPORTANT: never commit a real, filled-in invitation list with people's
+# names, emails, or phone numbers. The templates in data/ are fictional and
+# safe to commit. If you create a real private copy, name it like the line
+# below so Git ignores it.
+data/invitation-list-private.csv
+data/*-private.csv
+data/*-private.txt
+
+# Private guest list spreadsheets (contain real names and phone numbers).
+# These must never be published to the public website.
+docs/Book.xlsx
+*.xlsx
+
+# Local notes
+notes.local.md
