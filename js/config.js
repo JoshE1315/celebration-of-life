@@ -306,8 +306,10 @@ const CONFIG = {
     {
       question: "Are children welcome?",
       answer:
-        "Children are welcome when your invitation includes them. The RSVP " +
-        "form will let you add children's names where applicable.",
+        "Children are welcome when your invitation includes them. For our " +
+        "count, a child is anyone age 10 and under, and a guest 11 and up is " +
+        "counted as an adult. The RSVP form lets you list children separately " +
+        "from the adults.",
     },
     {
       question: "What should I wear?",
