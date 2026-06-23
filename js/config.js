@@ -176,11 +176,13 @@ const CONFIG = {
   // Each card has a time and a description. Use "" for time to show a dash.
   // Add, remove, or reorder cards freely.
   schedule: [
-    { time: "TBD", title: "Guest Arrival", description: "Please arrive a little early to find a seat and settle in." },
-    { time: "TBD", title: "Celebration of Life Ceremony", description: "We gather to remember and honor a cherished life." },
-    { time: "TBD", title: "Family Remarks and Shared Memories", description: "Family and friends are invited to share words and memories." },
-    { time: "TBD", title: "Closing", description: "A few closing words to bring our gathering together." },
-    { time: "TBD", title: "Reception and Refreshments", description: "Please stay to share stories, food, and fellowship." },
+    { time: "1:00 PM", title: "Guests Arrive and Gather", description: "Welcome, refreshments, and time to greet one another." },
+    { time: "1:20 PM", title: "Welcome", description: "A family member opens with a few words." },
+    { time: "1:30 PM", title: "Remembering Stanley", description: "Family remarks, and guests are invited to share a memory." },
+    { time: "2:00 PM", title: "A Toast in His Honor", description: "Please join us in raising a glass to Stanley." },
+    { time: "2:05 PM", title: "Lunch and Fellowship", description: "A meal together, with stories and conversation." },
+    { time: "2:55 PM", title: "Closing Words", description: "A few words to bring our gathering together." },
+    { time: "3:00 PM", title: "Farewell", description: "Thank you for celebrating his life with us." },
   ],
 
 
