@@ -245,6 +245,10 @@ const CONFIG = {
     // Loop the song so it keeps playing while the page is open.
     loop: true,
 
+    // Starting volume, from 0 (silent) to 100 (full). Lower it for a gentler
+    // start, for example 70.
+    startVolume: 100,
+
     // Paste the YouTube link or video ID of the song you choose.
     // Example link: https://www.youtube.com/watch?v=XXXXXXXXXXX
     // Leave blank to turn the music off until you add a song.
