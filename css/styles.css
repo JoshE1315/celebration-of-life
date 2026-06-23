@@ -956,8 +956,67 @@ img { max-width: 100%; height: auto; display: block; }
 /* ---------------------------------------------------------------------------
  * PRINT  -  a clean printed invitation
  * -------------------------------------------------------------------------*/
+/* The printable program is hidden on screen and revealed only when printing. */
+.program { display: none; }
+
 @media print {
-  .site-header, .nav-toggle, .hero__actions, .details__actions,
-  .section--rsvp, .rsvp-form, .link-button { display: none !important; }
+  /* Print only the program handout, nothing else. */
   body { background: #fff; color: #000; }
+  .site-header, main, .site-footer, .music-toggle, .contact-dialog,
+  #music-player-holder, .skip-link { display: none !important; }
+  .program { display: block !important; }
+
+  @page { margin: 1.6cm; }
+
+  .program__inner { text-align: center; max-width: 38rem; margin: 0 auto; color: #1a1a1a; }
+  .program__eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    font-size: 0.8rem;
+    color: #6b6357;
+    margin: 0 0 0.4rem;
+  }
+  .program__name {
+    font-family: var(--font-display);
+    font-size: 2.4rem;
+    color: #2c4760;
+    margin: 0 0 0.2rem;
+  }
+  .program__lifespan {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.15rem;
+    color: #555;
+    margin: 0 0 0.4rem;
+  }
+  .program__flourish { color: #b3935b; font-size: 0.7rem; margin: 0.4rem 0 0.8rem; }
+  .program__details {
+    font-size: 1rem;
+    line-height: 1.7;
+    margin: 0 0 1.4rem;
+    color: #333;
+  }
+  .program__heading {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    color: #2c4760;
+    margin: 0 0 0.8rem;
+  }
+  .program__table {
+    width: 100%;
+    max-width: 30rem;
+    margin: 0 auto 1.6rem;
+    border-collapse: collapse;
+    text-align: left;
+  }
+  .program__table td { padding: 0.4rem 0.5rem; vertical-align: top; border-bottom: 1px solid #e4dac6; }
+  .program__time { white-space: nowrap; color: #b3935b; font-family: var(--font-display); font-weight: 600; width: 6rem; }
+  .program__item span { color: #555; font-size: 0.9rem; }
+  .program__closing {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.1rem;
+    color: #2c4760;
+    margin-top: 1.2rem;
+  }
 }

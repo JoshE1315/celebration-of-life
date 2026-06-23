@@ -256,6 +256,65 @@
   }
 
   /* ---------------------------------------------------------------------------
+   * PRINTABLE PROGRAM  -  a clean one-page handout built from config
+   * -------------------------------------------------------------------------*/
+  function buildProgram(cfg) {
+    var el = document.querySelector("[data-program]");
+    if (!el) return;
+    var ev = cfg.event;
+
+    // Date line
+    var dateLine = ev.date || "";
+
+    // Time line
+    var timeLine = "";
+    if (!isTBD(ev.startTimeDisplay)) {
+      timeLine = ev.startTimeDisplay + (isTBD(ev.endTimeDisplay) ? "" : " to " + ev.endTimeDisplay);
+    }
+
+    // Venue line
+    var venueBits = [];
+    if (!isTBD(ev.venueName)) venueBits.push(ev.venueName);
+    var cityLine = [ev.city, ev.state].filter(function (x) { return !isTBD(x); }).join(", ");
+    if (cityLine) venueBits.push(cityLine);
+    var venueLine = venueBits.join(", ");
+
+    // Schedule rows
+    var rows = (cfg.schedule || []).map(function (item) {
+      var t = isTBD(item.time) ? "" : item.time;
+      return '<tr><td class="program__time">' + escapeHtmlText(t) + '</td>' +
+             '<td class="program__item"><strong>' + escapeHtmlText(item.title) + '</strong>' +
+             (item.description ? '<br><span>' + escapeHtmlText(item.description) + '</span>' : '') +
+             '</td></tr>';
+    }).join("");
+
+    el.innerHTML =
+      '<div class="program__inner">' +
+        '<p class="program__eyebrow">' + escapeHtmlText(cfg.deceased.eyebrow || "Celebrating the Life of") + '</p>' +
+        '<h1 class="program__name">' + escapeHtmlText(cfg.deceased.fullName) + '</h1>' +
+        (cfg.deceased.lifespan ? '<p class="program__lifespan">' + escapeHtmlText(cfg.deceased.lifespan) + '</p>' : '') +
+        '<p class="program__flourish">&#9670;</p>' +
+        '<p class="program__details">' +
+          [dateLine, timeLine, venueLine].filter(Boolean).map(escapeHtmlText).join('<br>') +
+        '</p>' +
+        '<h2 class="program__heading">Order of the Day</h2>' +
+        '<table class="program__table">' + rows + '</table>' +
+        '<p class="program__closing">' + escapeHtmlText(cfg.footer.closingLine || "Held in loving memory.") + '</p>' +
+      '</div>';
+  }
+
+  // Minimal HTML escaping for program text.
+  function escapeHtmlText(value) {
+    return String(value == null ? "" : value)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  function wirePrintProgram() {
+    var btn = document.querySelector("[data-print-program]");
+    if (btn) btn.addEventListener("click", function () { window.print(); });
+  }
+
+  /* ---------------------------------------------------------------------------
    * CALENDAR BUTTON
    * -------------------------------------------------------------------------*/
   function wireCalendar() {
@@ -294,8 +353,10 @@
     applySchedule(cfg);
     applyFaq(cfg);
     applyFooterContact(cfg);
+    buildProgram(cfg);
 
     wireNavToggle();
+    wirePrintProgram();
     wireCalendar();
     wirePrivacyToggle();
 

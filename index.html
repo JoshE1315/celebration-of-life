@@ -273,6 +273,9 @@
         <ol class="schedule" data-schedule-list>
           <!-- Cards are rendered here by app.js from config.schedule -->
         </ol>
+        <div class="schedule__actions">
+          <button class="btn btn--secondary" type="button" data-print-program>Print Program / Save as PDF</button>
+        </div>
       </div>
     </section>
 
@@ -465,6 +468,10 @@
       </div>
     </section>
   </main>
+
+  <!-- ===================== PRINTABLE PROGRAM ===================== -->
+  <!-- Hidden on screen; shown only when printing. Filled in by app.js. -->
+  <section class="program" data-program aria-hidden="true"></section>
 
   <!-- ===================== FOOTER ===================== -->
   <footer class="site-footer">
